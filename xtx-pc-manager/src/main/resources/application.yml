@@ -1,0 +1,198 @@
+server:
+  port: 5032
+spring:
+  resources:
+    add-mappings:  false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 301MB
+  redis:
+    host: localhost
+    port: 6379
+    password: Redis-=085175
+    database: 1
+rocketmq:
+  name-server: 8.130.48.113:9876
+  producer:
+    group: xtx-pc-group
+
+elasticsearch:
+  host: localhost
+  port: 9200
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+tmp:
+  file-directory: /Users/cengshaofeng/Desktop/xiaotuxian/upload
+sms:
+  region-id: cn-hangzhou
+  accessKey: LTAI4FqsEN4TvQo4859WFfPr
+  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
+  register:
+    sign: 传智播客
+    template-code: SMS_173696218
+  login:
+    sign: 传智播客
+    template-code: SMS_173696220
+  reset:
+    sign: 传智播客
+    template-code: SMS_173696217
+  social:
+    sign: 传智播客
+    template-code: SMS_173696221
+account:
+  avatar: http://yjy-xiaotuxian-dev.oss-cn-beijing.aliyuncs.com/picture/2021-04-06/db628d42-88a7-46e7-abb8-659448c33081.png
+
+
+
+test:
+  recommendsJson: >-
+    [
+    {
+        "id": "210000198803151589",
+        "picture": "https://yanxuan-item.nosdn.127.net/7f84dd79d8d8620fe1ed38a709fabef3.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "打式新权三关组离土报十机期空实他交切",
+        "price": 193.22,
+        "desc": "量照置特业十论这立红化正"
+    },
+    {
+        "id": "630000201208237444",
+        "picture": "https://yanxuan-item.nosdn.127.net/34aa50a8aabd592681733f615fc862c4.png?type=webp&imageView&quality=95&thumbnail=210x210",
+        "name": "引是么报写院见清此对层",
+        "price": 112.47,
+        "desc": "中按音成几元且农程动红事酸业历"
+    },
+    {
+        "id": "420000200107119111",
+        "picture": "https://yanxuan-item.nosdn.127.net/65be335760e2375432b4410adbd32b2f.png?type=webp&imageView&quality=95&thumbnail=210x210",
+        "name": "照律装准决况分化军从市习价合平次也把",
+        "price": 154.13,
+        "desc": "回始导导议严打并理从领术运名"
+    },
+    {
+        "id": "510000202007025071",
+        "picture": "https://yanxuan-item.nosdn.127.net/65be335760e2375432b4410adbd32b2f.png?type=webp&imageView&quality=95&thumbnail=210x210",
+        "name": "历并力收路般究想二较商打低标斯格",
+        "price": 171.29,
+        "desc": "天长法立规林值火此示置很"
+    },
+    {
+        "id": "710000199809012611",
+        "picture": "https://yanxuan-item.nosdn.127.net/7f84dd79d8d8620fe1ed38a709fabef3.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "处容采气音路片亲平十发件族",
+        "price": 194.66,
+        "desc": "听变本集门除小政则示取只"
+    },
+    {
+        "id": "130000198911083077",
+        "picture": "https://yanxuan-item.nosdn.127.net/ad15ea988d0591e5d0a9e47c938a69d9.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "太始争员思育为叫图它产何离业比身门",
+        "price": 102.54,
+        "desc": "点众影共把只复亲市广内本王保时水色"
+    },
+    {
+        "id": "420000200602221340",
+        "picture": "https://yanxuan-item.nosdn.127.net/ad15ea988d0591e5d0a9e47c938a69d9.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "去府放厂派并科形去县机十已品角引论速运",
+        "price": 106.38,
+        "desc": "都高得通分向细再却此火"
+    },
+    {
+        "id": "42000019731025121X",
+        "picture": "https://yanxuan-item.nosdn.127.net/65be335760e2375432b4410adbd32b2f.png?type=webp&imageView&quality=95&thumbnail=210x210",
+        "name": "物反动石期得社理清十水展整长场光",
+        "price": 168.79,
+        "desc": "离应华油济须就特共应"
+    },
+    {
+        "id": "530000201611219736",
+        "picture": "https://yanxuan-item.nosdn.127.net/7f84dd79d8d8620fe1ed38a709fabef3.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "必最队方反期快展总做化",
+        "price": 176.94,
+        "desc": "引立且高进价龙县管处图称料备许他非定各"
+    },
+    {
+        "id": "360000201109044967",
+        "picture": "https://yanxuan-item.nosdn.127.net/7f84dd79d8d8620fe1ed38a709fabef3.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+        "name": "们口二部好节格及记界况北存个走影根",
+        "price": 120.31,
+        "desc": "中便我六市处构领命层构很完家"
+    }
+    ]
+  similarProductsJson: >-
+    [
+                {
+                    "id": "510000202007025071",
+                    "picture": "https://yanxuan-item.nosdn.127.net/65be335760e2375432b4410adbd32b2f.png?type=webp&imageView&quality=95&thumbnail=210x210",
+                    "name": "历并力收路般究想二较商打低标斯格",
+                    "price": 171.29,
+                    "desc": "天长法立规林值火此示置很"
+                },
+                {
+                    "id": "710000199809012611",
+                    "picture": "https://yanxuan-item.nosdn.127.net/7f84dd79d8d8620fe1ed38a709fabef3.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+                    "name": "处容采气音路片亲平十发件族",
+                    "price": 194.66,
+                    "desc": "听变本集门除小政则示取只"
+                },
+                {
+                    "id": "130000198911083077",
+                    "picture": "https://yanxuan-item.nosdn.127.net/ad15ea988d0591e5d0a9e47c938a69d9.jpg?type=webp&quality=95&thumbnail=245x245&imageView",
+                    "name": "太始争员思育为叫图它产何离业比身门",
+                    "price": 102.54,
+                    "desc": "点众影共把只复亲市广内本王保时水色"
+                }
+            ]
+  hotByDayJson: >-
+    [
+                {
+                    "id": "210000198803151589",
+                    "picture": "https://yanxuan-item.nosdn.127.net/d66e9010b01c33eee075ed66f0822c36.png?type=webp&imageView&thumbnail=430x430&quality=95",
+                    "name": "打式新权三关组离土报十机期空实他交切",
+                    "price": 193.22,
+                    "desc": "量照置特业十论这立红化正"
+                },
+                {
+                    "id": "630000201208237444",
+                    "picture": "https://yanxuan-item.nosdn.127.net/34aa50a8aabd592681733f615fc862c4.png?type=webp&imageView&quality=95&thumbnail=210x210",
+                    "name": "引是么报写院见清此对层",
+                    "price": 112.47,
+                    "desc": "中按音成几元且农程动红事酸业历"
+                },
+                {
+                    "id": "420000200107119111",
+                    "picture": "https://yanxuan-item.nosdn.127.net/86a91475bca4cb758c3f67733c0916de.png?type=webp&imageView&thumbnail=430x430&quality=95",
+                    "name": "照律装准决况分化军从市习价合平次也把",
+                    "price": 154.13,
+                    "desc": "回始导导议严打并理从领术运名"
+                }
+            ]
+  evaluationInfoJson: >-
+    {
+            "id": "1373242377958854658",
+            "orderInfo": {
+                "specs": [{"name":"产地","valueName":"中国"},{"name":"尺寸","valueName":"10cm"},{"name":"颜色","valueName":"蓝色"}],
+                "quantity": 1,
+                "createTime": "2021-03-20 18:54:19"
+            },
+            "member": {
+                "id":"7324779854",
+                "account":"佩奇",
+                "avatar":"https://tse3-mm.cn.bing.net/th/id/OIP.b3osWql1Pg39sxih_Qjg_AHaHa?pid=Api&rs=1"
+            },
+            "score": 5,
+            "tags": ["家"],
+            "content": "质量不错，灵敏度高，结构巧妙，款式也好看",
+            "pictures": ["https://yanxuan-item.nosdn.127.net/efcdc585caf72f789dbd68138db477ce.png?type=webp&imageView&quality=95&thumbnail=210x210","https://yanxuan-item.nosdn.127.net/d0b5a28908e7aa6e1c0e0c10eed1d79e.png?type=webp&imageView&quality=95&thumbnail=210x210"],
+            "officialReply": "",
+            "praiseCount": 658,
+            "createTime": "2021-03-20 19:57:51",
+            "praisePercent": 98
+        }

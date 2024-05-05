@@ -1,0 +1,115 @@
+stages:
+  #   - sonar
+  - package
+  - deploy
+# sonar
+# sonar_analyze:
+#   stage: sonar
+#   script:
+# #    - export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.9.11-2.el7_9.x86_64
+#     - export JAVA_HOME=/opt/jdk-11
+#     - export JRE_HOME=$JAVA_HOME/jre
+#     - export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib
+#     - export PATH=$JAVA_HOME/bin:$PATH
+#     - java -version
+#     - mvn install:install-file -Dfile=./deploy/libs/jave-1.0.2.jar -DgroupId=it.sauronsoftware -DartifactId=jave -Dversion=1.0.2 -Dpackaging=jar -DgeneratePom=true
+#     - mvn clean package -Dmaven.test.skip=true
+#     - |
+#       sonar-scanner -X \
+#       -Dsonar.projectKey=gitlab:$CI_COMMIT_REF_NAME:$CI_PROJECT_NAME \
+#       -Dsonar.projectName=$CI_PROJECT_NAME \
+#       -Dsonar.projectVersion=1.0.$CI_PIPELINE_ID \
+#       -Dsonar.sourceEncoding=UTF-8 \
+#       -Dsonar.modules=webCommon,webManager,webPC,webService \
+#       -DwebCommon.sonar.sources=webCommon/src/main/java \
+#       -DwebCommon.sonar.projectBaseDir=. \
+#       -DwebCommon.sonar.java.binaries=webCommon/target,/root/.m2/repository/org/projectlombok/lombok/1.18.12/lombok-1.18.12.jar \
+#       -DwebCommon.sonar.language=java \
+#       -DwebManager.sonar.sources=webManager/src/main/java \
+#       -DwebManager.sonar.projectBaseDir=. \
+#       -DwebManager.sonar.java.binaries=webManager/target,/root/.m2/repository/org/projectlombok/lombok/1.18.12/lombok-1.18.12.jar \
+#       -DwebManager.sonar.language=java \
+#       -DwebPC.sonar.sources=webPC/src/main/java \
+#       -DwebPC.sonar.projectBaseDir=. \
+#       -DwebPC.sonar.java.binaries=webPC/target,/root/.m2/repository/org/projectlombok/lombok/1.18.12/lombok-1.18.12.jar \
+#       -DwebPC.sonar.language=java \
+#       -DwebService.sonar.sources=webService/src/main/java \
+#       -DwebService.sonar.projectBaseDir=. \
+#       -DwebService.sonar.java.binaries=webService/target,/root/.m2/repository/org/projectlombok/lombok/1.18.12/lombok-1.18.12.jar \
+#       -DwebService.sonar.language=java
+#   tags:
+#     - xiaotuxian-front-java
+# #    - a-corho-xtx
+
+server-package:
+  stage: package
+  script:
+    #    - export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.9.11-2.el7_9.x86_64
+    - export JAVA_HOME=/opt/jdk-11
+    - export JRE_HOME=$JAVA_HOME/jre
+    - export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib
+    - export PATH=$JAVA_HOME/bin:$PATH
+    - java -version
+    - mvn clean package -Dmaven.test.skip=true
+    - docker images | grep '<none>'&> /dev/null && echo 0 || echo 1
+    - docker images | grep "none" &> /dev/null &&   docker rmi $(docker images | grep "none" | awk '{print $3}')  ||  echo no
+    - docker build -f ./deploy/Dockerfile -t xiaotuxian-front-java/backend --build-arg PACKAGE_PATH=webManager/target/*.jar .
+    - docker build -f ./deploy/Dockerfile -t xiaotuxian-front-java/pc --build-arg PACKAGE_PATH=webPC/target/*.jar .
+  tags:
+    - xiaotuxian-front-java
+  only:
+    - master #只有dev分支提交代码才会执行这个任务。也可以是分支名称或触发器名称
+#    - /^future-.*$/ #正则表达式，只有future-开头的分支才会执行
+server-package-devtest:
+  stage: package
+  script:
+    #    - export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.9.11-2.el7_9.x86_64
+    - export JAVA_HOME=/opt/jdk-11
+    - export JRE_HOME=$JAVA_HOME/jre
+    - export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib
+    - export PATH=$JAVA_HOME/bin:$PATH
+    - java -version
+    - mvn clean package -Dmaven.test.skip=true
+    - docker images | grep '<none>' &> /dev/null && echo 0 || echo 1
+    - docker images | grep "none" &> /dev/null &&   docker rmi $(docker images | grep "none" | awk '{print $3}')  ||  echo no
+    # - docker build -f ./deploy/Dockerfile-devtest -t xiaotuxian-java/backend-devtest --build-arg PACKAGE_PATH=webManager/target/*.jar .
+    - docker build -f ./deploy/Dockerfile-devtest -t xiaotuxian-java/pc-devtest --build-arg PACKAGE_PATH=webPC/target/*.jar .
+  tags:
+    - xiaotuxian-front-java
+  only:
+    - devtest #只有dev分支提交代码才会执行这个任务。也可以是分支名称或触发器名称
+  #    - /^future-.*$/ #正则表达式，只有future-开头的分支才会执行
+
+server-deploy:
+  stage: deploy
+  script:
+    - echo "script section--master"
+    - ls -al
+    - pwd
+    - cd ./deploy
+    - pwd
+    - docker-compose -p xtx -f docker-compose.yml down
+    - docker-compose -p xtx  -f docker-compose.yml up -d
+    - echo "end-script section-master"
+  only:
+    - master
+  tags:
+    #    对应的itrunner的值
+    - xiaotuxian-front-java
+
+server-deploy-devtest:
+  stage: deploy
+  script:
+    - echo "script section-devtest"
+    - ls -al
+    - pwd
+    - cd ./deploy
+    - pwd
+    - docker-compose -p xtxdevtest -f docker-compose-devtest.yml down
+    - docker-compose -p xtxdevtest -f docker-compose-devtest.yml up -d
+    - echo "end-script section-devtest"
+  only:
+    - devtest
+  tags:
+    #    对应的gitrunner的值
+    - xiaotuxian-front-java

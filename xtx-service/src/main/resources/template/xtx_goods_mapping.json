@@ -1,0 +1,141 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "name": {
+      "type": "text",
+      "analyzer": "ik_smart"
+    },
+    "backend": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "text",
+          "analyzer": "ik_smart"
+        }
+      }
+    },
+    "pcPicture": {
+      "type": "keyword"
+    },
+    "appPicture": {
+      "type": "keyword"
+    },
+    "price": {
+      "type": "double"
+    },
+    "discountPrice": {
+      "type": "double"
+    },
+    "hasDiscount": {
+      "type": "boolean"
+    },
+    "discount": {
+      "type": "double"
+    },
+    "brand": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "text",
+          "analyzer": "ik_smart"
+        },
+        "nameEn": {
+          "type": "text"
+        },
+        "productionPlaceCountry": {
+          "type": "text",
+          "analyzer": "ik_smart"
+        },
+        "productionPlaceState": {
+          "type": "text",
+          "analyzer": "ik_smart"
+        }
+      }
+    },
+    "fronts": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "name": {
+          "type": "text",
+          "analyzer": "ik_smart"
+        },
+        "layer": {
+          "type": "short"
+        }
+      }
+    },
+    "pcDecription": {
+      "type": "text",
+      "analyzer": "ik_smart"
+    },
+    "appDecription": {
+      "type": "text",
+      "analyzer": "ik_smart"
+    },
+    "spuCode": {
+      "type": "text"
+    },
+    "sales": {
+      "type": "text",
+      "analyzer": "ik_smart"
+    },
+    "saleProperties": {
+      "properties": {
+        "propertyGroupName": {
+          "type": "keyword"
+        },
+        "propertyMainName": {
+          "type": "keyword"
+        },
+        "propertyValueName": {
+          "type": "keyword"
+        }
+      }
+    },
+    "state": {
+      "type": "short"
+    },
+    "publishTime": {
+      "type": "date"
+    },
+    "frontRelations": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "frontId": {
+          "type": "keyword"
+        },
+        "objectId": {
+          "type": "keyword"
+        },
+        "objectType": {
+          "type": "keyword"
+        },
+        "relationKey": {
+          "type": "keyword"
+        }
+      }
+    },
+    "orderNum": {
+      "type": "long"
+    },
+    "evaluateNum": {
+      "type": "long"
+    },
+    "hotKeys": {
+      "type": "keyword"
+    },
+    "inventory": {
+      "type": "integer"
+    }
+  }
+}

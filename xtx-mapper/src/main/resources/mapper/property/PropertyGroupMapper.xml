@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.property.PropertyGroupMapper">
+    <select id="findAll" resultType="com.itheima.xiaotuxian.entity.property.PropertyGroup">
+        SELECT DISTINCT pg.* FROM property_group pg
+        <if test="(queryVo.backendId !=null and queryVo.backendId != '') ">
+            LEFT JOIN classification_backend_property_group cbpg ON cbpg.property_group_id = pg.id
+            LEFT JOIN classification_backend cb ON cbpg.classification_backend_id = cb.id
+        </if>
+        <if test="queryVo.backends !=null and queryVo.backends.size() > 0">
+            LEFT JOIN classification_backend_property_group cbpg ON cbpg.property_group_id = pg.id
+            LEFT JOIN classification_backend cb ON cbpg.classification_backend_id = cb.id
+        </if>
+        <if test="queryVo.frontId !=null and queryVo.frontId != '' and queryVo.frontId != '0'.toString()">
+            LEFT JOIN classification_front_relation cfr ON cfr.object_id=cb.id
+            LEFT JOIN classification_front cf ON cfr.front_id = cf.id
+        </if>
+        <where>
+            pg.is_delete = 0
+            <if test="queryVo.state !=null  and queryVo.state != -1 ">
+                AND pg.state = #{queryVo.state}
+            </if>
+            <if test="queryVo.propertyType !=null and queryVo.propertyType != ''">
+                AND pg.property_type = #{queryVo.propertyType}
+            </if>
+            <if test="queryVo.backendId !=null and queryVo.backendId != ''">
+                AND cbpg.is_delete = 0 AND cb.is_delete = 0
+                <!-- AND cb.id = #{queryVo.backendId} -->
+                and cb.id in
+                <foreach item="item" collection="queryVo.backendId.split(',')" separator="," open="(" close=")" index="">
+                      #{item}
+                </foreach>
+            </if>
+            <if test="queryVo.backends != null and queryVo.backends.size() > 0">
+                AND cbpg.is_delete = 0 AND cb.is_delete = 0
+                AND cb.id in
+                <foreach collection="queryVo.backends" item="item" index="index" open="(" separator="," close=")">
+                    #{item.id}
+                </foreach>
+            </if>
+            <if test="queryVo.frontId !=null and queryVo.frontId != '' and queryVo.frontId != '0'.toString()">
+                AND cfr.object_type = 1 AND cf.is_delete = 0
+                AND cf.id = #{queryVo.frontId}
+            </if>
+        </where>
+    </select>
+</mapper>

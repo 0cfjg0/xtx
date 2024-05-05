@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.goods.GoodsBrandMapper">
+    <!-- 获取全部产地-国家维度-->
+    <select id="getAllProductionPlace" resultType="java.lang.String">
+        SELECT production_place_country FROM goods_brand WHERE edit_state = 1 AND state = 0 AND is_delete = 0 GROUP BY
+        production_place_country ORDER BY production_place_country
+    </select>
+    <!-- 获取全部首字母-->
+    <select id="getAllFirstWord" resultType="java.lang.String">
+        SELECT first_word FROM goods_brand WHERE edit_state = 1 AND state = 0 AND is_delete = 0 GROUP BY first_word
+        ORDER BY first_word
+    </select>
+    <!--获取全部前台分类-->
+    <select id="getAllFront" resultType="com.itheima.xiaotuxian.entity.classification.ClassificationFront">
+        SELECT distinct cf.* FROM classification_front_relation cfr
+        LEFT JOIN goods_brand gb ON cfr.object_id = gb.id
+        LEFT JOIN classification_front cf ON cfr.front_id = cf.id
+        WHERE
+        cfr.object_type = 3
+        AND gb.is_delete = 0
+        AND cf.is_delete = 0
+        AND gb.edit_state = 1
+        AND gb.state = 0
+        AND cf.state = 0
+        GROUP BY cf.id
+    </select>
+    <!--获取分页数据-->
+    <select id="findByPage" resultType="com.itheima.xiaotuxian.entity.goods.GoodsBrand">
+        SELECT distinct gb.* FROM goods_brand gb
+        <if test="queryVo.backends != null and queryVo.backends.size() > 0">
+            LEFT JOIN classification_backend_brand cbb ON gb.id = cbb.brand_id
+        </if>
+        WHERE
+        gb.is_delete = 0
+        <if test="queryVo.backends != null and queryVo.backends.size() > 0">
+              and   cbb.is_delete = 0
+        </if>
+        <if test="queryVo.name !=null and queryVo.name !=''">
+            AND (gb.name like #{queryVo.name} OR gb.name_en like #{queryVo.name})
+        </if>
+        <if test="queryVo.productionPlace !=null and queryVo.productionPlace !=''">
+            AND (gb.production_place_country like #{queryVo.productionPlace} OR gb.production_place_state like
+            #{queryVo.productionPlace})
+        </if>
+        <if test="queryVo.state !=null and queryVo.state !=''">
+            AND gb.state = #{queryVo.state}
+        </if>
+        <if test="queryVo.backends != null and queryVo.backends.size() > 0">
+            AND cbb.classification_backend_id IN
+            <foreach collection="queryVo.backends" item="item" index="index" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        ORDER BY gb.update_time DESC
+    </select>
+    <!--获取品牌列表-->
+    <select id="findAll" resultType="com.itheima.xiaotuxian.entity.goods.GoodsBrand">
+        SELECT distinct gb.* FROM goods_brand gb
+        <if test="(queryVo.backends != null and queryVo.backends.size() > 0) or (queryVo.backendId !=null and queryVo.backendId !='')">
+            LEFT JOIN classification_backend_brand cbb ON gb.id = cbb.brand_id
+        </if>
+        <if test="queryVo.frontId !=null and queryVo.frontId !='' and queryVo.frontId !='0'.toString()">
+            LEFT JOIN classification_front_relation cfr ON gb.id = cfr.object_id
+        </if>
+        WHERE
+        gb.is_delete = 0
+        <if test="(queryVo.backends != null and queryVo.backends.size() > 0) or (queryVo.backendId !=null and queryVo.backendId !='')">
+              and cbb.is_delete = 0
+        </if>
+        <if test="queryVo.name !=null and queryVo.name !=''">
+            AND (gb.name like #{queryVo.name} OR gb.name_en like #{queryVo.name})
+        </if>
+        <if test="queryVo.firstWord !=null and queryVo.firstWord !=''">
+            AND gb.first_word = #{queryVo.firstWord}
+        </if>
+        <if test="queryVo.productionPlace !=null and queryVo.productionPlace !=''">
+            AND (gb.production_place_country like #{queryVo.productionPlace} OR gb.production_place_state like
+            #{queryVo.productionPlace})
+        </if>
+        <if test="queryVo.state !=null and queryVo.state !=''">
+            AND gb.state = #{queryVo.state}
+        </if>
+        <if test="queryVo.editState !=null and queryVo.editState !=''">
+            AND gb.edit_state = #{queryVo.editState}
+        </if>
+        <if test="queryVo.backends != null and queryVo.backends.size() > 0">
+            AND cbb.classification_backend_id IN
+            <foreach collection="queryVo.backends" item="item" index="index" open="(" separator="," close=")">
+                #{item.id}
+            </foreach>
+        </if>
+        <if test="queryVo.ids != null and queryVo.ids.size() > 0">
+            AND gb.id IN
+            <foreach collection="queryVo.ids" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="queryVo.backendId !=null and queryVo.backendId !=''">
+            AND cbb.classification_backend_id = #{queryVo.backendId}
+         </if>
+        <if test="queryVo.frontId !=null and queryVo.frontId !='' and queryVo.frontId !='0'.toString()">
+            AND cfr.object_type = 3 AND cfr.front_id = #{queryVo.frontId}
+        </if>
+        ORDER BY gb.update_time DESC
+        <if test="queryVo.limit !=null and queryVo.limit !=''">
+            limit #{queryVo.limit}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.material.MaterialVideoMapper">
+    <select id="findByPage" resultType="com.itheima.xiaotuxian.vo.material.VideoItemVo">
+        SELECT DISTINCT material.* FROM
+        (
+        SELECT mv.id,mv.name,mv.duration,mv.screen_size,mv.url,CASE mv.cover_mark WHEN 1 THEN mv.cover_img ELSE
+        mv.square_cover_img END AS picture,mv.update_time,mv.file_size,mv.audit_state,2 AS
+        is_used,mv.group_id,mv.state,2 AS item_type,mv.is_delete FROM material_video mv
+        UNION
+        SELECT mvp.id,mvp.name,0 AS duration,NULL AS
+        screen_size,'https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/dic.png' AS url,
+        'https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/dic.png' AS picture,mvp.update_time,0 AS
+        file_size,2 AS
+        audit_state,2 AS is_used,mvp.pid AS group_id,mvp.state,1 AS item_type,mvp.is_delete FROM material_video_group
+        mvp
+        ) material
+        <if test="queryVo.goodsKeyword !=null and queryVo.goodsKeyword !=''">
+            LEFT JOIN goods_spu_main_video gsmv ON gsmv.video_id = material.id
+            LEFT JOIN goods_spu gs ON gsmv.spu_id = gs.id
+        </if>
+        <where>
+            material.is_delete = 0
+            <if test="queryVo.isUsed !=null and queryVo.isUsed != 0">
+                AND material.is_used=#{queryVo.isUsed}
+            </if>
+            <if test="queryVo.startDate !=null and queryVo.startDate !=''">
+                AND date(material.update_time) &gt;= #{queryVo.startDate}
+            </if>
+            <if test="queryVo.endDate !=null and queryVo.endDate !=''">
+                AND date(material.update_time) &lt;= #{queryVo.endDate}
+            </if>
+            <if test="queryVo.keyword !=null and queryVo.keyword !=''">
+                AND material.name LIKE "%"#{queryVo.keyword}"%"
+            </if>
+            <if test="queryVo.goodsKeyword !=null and queryVo.goodsKeyword !=''">
+                AND gs.name LIKE "%"#{queryVo.goodsKeyword}"%"
+                AND gs.is_delete = 0
+            </if>
+            <!-- -1 值得是未分组的，默认的groupid是-1   此处是判断默认分组的-->
+           <if test="queryVo.groupId !=null and queryVo.groupId !=''.toString() and queryVo.groupId !='-1'.toString() and queryVo.groupId !='0'.toString() ">
+               AND material.group_id = #{queryVo.groupId}
+           </if>
+           <if test="queryVo.groupId !=null and queryVo.groupId =='-1'.toString()">
+               AND material.group_id = '0'
+               AND material.item_type = 2
+           </if>
+           <if test="(queryVo.groupId ==null or queryVo.groupId =='0'.toString()) and (queryVo.trash == null or 'false'.toString() == queryVo.trash.toString())">
+              <!-- AND material.group_id = '0' -->
+            </if>
+            <if test="queryVo.trash !=null and 'true'.toString() == queryVo.trash.toString()">
+                AND material.state = 2
+            </if>
+            <if test="queryVo.trash ==null or 'false'.toString() == queryVo.trash.toString()">
+                AND material.state = 1
+            </if>
+            <if test="queryVo.auditState !=null and queryVo.auditState != 0">
+                AND material.audit_state = #{queryVo.auditState}
+            </if>
+            <if test="queryVo.display !=null and queryVo.display != 0">
+                AND material.display = #{queryVo.display}
+            </if>
+        </where>
+        ORDER BY item_type ASC
+        <if test="queryVo.sortName == 'name' or queryVo.sortName == 'updateTime'">
+            <if test="queryVo.sortName == 'name'">
+                ,material.name
+            </if>
+            <if test="queryVo.sortName == 'updateTime'">
+                ,material.update_time
+            </if>
+            <if test="queryVo.sortMethod == 'asc'">
+                ASC
+            </if>
+            <if test="queryVo.sortMethod == 'desc'">
+                DESC
+            </if>
+        </if>
+    </select>
+</mapper>

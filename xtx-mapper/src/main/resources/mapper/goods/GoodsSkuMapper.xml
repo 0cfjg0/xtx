@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.goods.GoodsSkuMapper">
+    <!--获取分页数据-->
+    <select id="findByPage" resultType="com.itheima.xiaotuxian.entity.goods.GoodsSku">
+        SELECT DISTINCT
+        distinct gsk.*
+        FROM goods_sku gsk
+        LEFT JOIN goods_spu gsp ON gsk.spu_id = gsp.id
+        LEFT JOIN goods_spu_main_picture gsmp ON gsmp.spu_id = gsp.id
+        LEFT JOIN material_picture mp ON mp.id = gsmp.picture_id
+        <where>
+            gsp.is_delete = 0 AND gsk.is_delete = 0
+            <if test="queryVo.name !=null and queryVo.name !=''">
+                AND gsp.name LIKE "%"#{queryVo.name}"%"
+            </if>
+            <if test="queryVo.backendId !=null and queryVo.backendId !=''">
+                AND gsp.classification_backend_id = #{queryVo.backendId}
+            </if>
+            <if test="queryVo.minSalesCount !=null and queryVo.minSalesCount !=''">
+                AND gsk.sales_count &gt;= #{queryVo.minSalesCount}
+            </if>
+            <if test="queryVo.maxSalesCount !=null and queryVo.maxSalesCount !=''">
+                AND gsk.sales_count &lt;= #{queryVo.maxSalesCount}
+            </if>
+            <if test="queryVo.state !=null and queryVo.state !=''">
+                AND gsp.state = #{queryVo.state}
+            </if>
+            <if test="queryVo.skuCode !=null and queryVo.skuCode !=''">
+                AND gsk.sku_code LIKE "%"#{queryVo.skuCode}"%"
+            </if>
+            <if test="queryVo.spuCode !=null and queryVo.spuCode !=''">
+                AND gsp.spu_code LIKE "%"#{queryVo.spuCode}"%"
+            </if>
+            <if test="queryVo.startTime !=null and queryVo.startTime !=''">
+                AND date(gsk.create_time) &gt;= #{queryVo.startTime}
+            </if>
+            <if test="queryVo.endTime !=null and queryVo.endTime !=''">
+                AND date(gsk.create_time) &lt;= #{queryVo.endTime}
+            </if>
+        </where>
+        ORDER BY gsk.create_time DESC
+    </select>
+    <select id="selectMinPice" resultType="com.itheima.xiaotuxian.entity.goods.GoodsSku">
+        select  DISTINCT    selling_price,min( market_price)  as market_price  from goods_sku gsk
+        where gsk.selling_price =
+        ( SELECT DISTINCT min(selling_price ) as selling_price_min    FROM goods_sku gsk_min
+        <where>
+            1=1 And
+            <if test="id !=null and id !=''">
+                gsk_min.spu_id  =#{id}
+            </if>
+        </where>   )      group by selling_price
+
+    </select>
+</mapper>

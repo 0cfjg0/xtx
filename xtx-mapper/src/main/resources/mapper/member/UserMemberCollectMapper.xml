@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.member.UserMemberCollectMapper">
+    <select id="findByPage" resultType="java.util.Map">
+        SELECT
+        <if test="collectType !=null and collectType == 1">
+            spu.id,spu.name,spu.pc_decription
+        </if>
+        <if test="collectType !=null and collectType == 2">
+            topic.id,topic.title AS name,topic.lowest_price AS price,topic.summary AS description,topic.details_url,topic.cover AS picture
+        </if>
+        <if test="collectType !=null and collectType == 3">
+            brand.id,brand.name,brand.description,concat_ws("/",brand.production_place_country ,brand.production_place_country ) as production_place,pic.url AS picture
+        </if>
+        FROM user_member_collect collect
+        <if test="collectType !=null and collectType == 1">
+            LEFT JOIN goods_spu spu ON collect.collect_object_id = spu.id
+        </if>
+        <if test="collectType !=null and collectType == 2">
+            LEFT JOIN marketing_topic topic ON collect.collect_object_id = topic.id
+        </if>
+        <if test="collectType !=null and collectType == 3">
+            LEFT JOIN goods_brand brand ON collect.collect_object_id = brand.id
+            LEFT JOIN material_picture pic ON brand.logo_id = pic.id
+        </if>
+        <where>
+            collect.member_id = #{memberId} AND collect.collect_type=#{collectType}
+            <if test="collectType !=null and collectType == 1">
+                AND spu.is_delete = 0
+            </if>
+            <if test="collectType !=null and collectType == 2">
+                AND topic.is_delete = 0
+            </if>
+            <if test="collectType !=null and collectType == 3">
+                AND brand.is_delete = 0 AND pic.is_delete = 0
+            </if>
+        </where>
+        ORDER BY collect.create_time DESC
+    </select>
+</mapper>

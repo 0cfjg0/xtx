@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.record.RecordOrderSpuMapper">
+    <select id="getHotGoods" resultType="com.itheima.xiaotuxian.vo.record.HotGoodsVo">
+        SELECT ros.spu_id,count(ros.order_id) AS order_num FROM record_order_spu ros
+        LEFT JOIN goods_spu gs ON ros.spu_id = gs.id
+        <where>
+            gs.audit_state = 2 AND gs.is_delete = 0 AND gs.state = 1
+            <if test="queryVo.spuId !=null and queryVo.spuId !=''">
+                AND gs.classification_backend_id = (SELECT sgs.classification_backend_id FROM goods_spu sgs WHERE
+                sgs.id=#{queryVo.spuId})
+            </if>
+            <if test="queryVo.startTime !=null and queryVo.startTime !=''">
+                AND ros.create_time &gt;= #{queryVo.startTime}
+            </if>
+            <if test="queryVo.endTime !=null and queryVo.endTime !=''">
+                AND ros.create_time &lt;= #{queryVo.endTime}
+            </if>
+        </where>
+        GROUP BY ros.spu_id ORDER BY order_num DESC
+        <if test="queryVo.limit !=null and queryVo.limit !=''">
+            LIMIT #{queryVo.limit}
+        </if>
+    </select>
+    <select id="getSpuIdByMemberId" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT DISTINCT ( ros.spu_id ) FROM record_order_spu ros
+	    LEFT JOIN order_order oo ON ros.order_id = oo.id
+        WHERE oo.is_delete = '0'
+        AND oo.order_state IN ( '2', '3', '4', '5' )
+	    AND oo.member_id = #{memberId};
+    </select>
+</mapper>

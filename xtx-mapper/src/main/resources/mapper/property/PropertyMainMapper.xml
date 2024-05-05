@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.property.PropertyMainMapper">
+    <select id="findByPage" resultType="com.itheima.xiaotuxian.entity.property.PropertyMain">
+        SELECT property_main.* FROM property_main property_main
+        <if test="queryVo.keyword !=null and queryVo.keyword != ''">
+            LEFT JOIN property_group property_group ON property_main.group_id = property_group.id
+            LEFT JOIN property_value property_value ON property_main.id = property_value.main_id
+        </if>
+        <where>
+            property_main.is_delete = 0
+            <if test="queryVo.keyword !=null and queryVo.keyword != ''">
+                AND property_group.is_delete = 0
+                AND property_value.is_delete = 0
+                <if test=" queryVo.keywordType == 1">
+                    AND property_group.name LIKE "%"#{queryVo.keyword}"%"
+                </if>
+                <if test=" queryVo.keywordType == 2">
+                    AND property_main.name LIKE "%"#{queryVo.keyword}"%"
+                </if>
+                <if test=" queryVo.keywordType == 3">
+                    AND property_value.value_name LIKE "%"#{queryVo.keyword}"%"
+                </if>
+            </if>
+            <if test="queryVo.propertyType !=null and queryVo.propertyType != 0">
+                AND property_main.property_type = #{queryVo.propertyType}
+            </if>
+        </where>
+        GROUP BY
+        property_main.id
+        ORDER BY property_main.create_time DESC
+    </select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.manager.ManagerRoleMapper">
+    <select id="findAll" resultType="com.itheima.xiaotuxian.entity.manager.ManagerRole">
+        SELECT
+        manager_role.*
+        FROM
+        manager_role manager_role
+        <if test="adminId !=null and adminId != ''">
+            LEFT JOIN manager_user_role manager_user_role ON manager_user_role.role_id = manager_role.id
+            LEFT JOIN manager_admin manager_admin ON manager_admin.id=manager_user_role.user_id
+        </if>
+        <where>
+            manager_role.is_delete=0 and manager_role.status=0
+            <if test="adminId !=null and adminId != ''">
+                AND manager_admin.id = #{adminId}
+            </if>
+        </where>
+    </select>
+</mapper>

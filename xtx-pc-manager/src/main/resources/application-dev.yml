@@ -1,0 +1,161 @@
+#本地测试环境使用
+server:
+  port: 8085
+  tomcat:
+    max-connections: 60000
+    connection-timeout: 6000s
+    max-http-form-post-size: 9000000
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.200.129:3306/xtx_manager?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: xc@123pawsd!!
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 301MB
+  redis:
+    host: 192.168.200.129
+    port: 6379
+    password: xc@123pawsd!!
+    database: 0
+  cache:
+    type: redis #缓存类型
+    redis:
+      cache-null-values: false #不缓存null数据
+      time-to-live: 50000ms #超时时间
+      use-key-prefix: false #不使用前缀
+  rabbitmq:
+    host: 192.168.200.129
+    port: 5672
+    username: admin
+    password: pass
+    #虚拟主机 一台机器可能有很多虚拟主机 这里选择默认配置 / 即可
+    virtual-host: /
+
+elasticsearch:
+  # host: 127.0.0.1
+  host: 192.168.200.129
+  port: 19200
+  scheme: http
+  connectTimeout: 100000
+  socketTimeout: 100000
+  connectionRequestTimeout: 100000
+  maxConnectNum: 100
+  maxConnectPerRoute: 100
+  keepAliveMinutes: 10
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#上传临时文件夹
+tmp:
+  file-directory: /home/upload
+token:
+  # 3分钟 180000 3天 259200000L 15天1296000000
+  ttlMillis: 259200000
+  refreshTokenTimeout: 1296000000
+
+#短信相关的配置信息
+sms:
+  region-id: cn-hangzhou
+  accessKey: LTAI4FqsEN4TvQo4859WFfPr
+  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
+  register:
+    sign: 传智播客
+    template-code: SMS_173696218
+  login:
+    sign: 传智播客
+    template-code: SMS_173696220
+  reset:
+    sign: 传智播客
+    template-code: SMS_173696217
+  social:
+    sign: 传智播客
+    template-code: SMS_173696221
+  testCode: 123456
+
+
+pay:
+  expires:
+    #支付过期时间， 默认是30分钟
+    pc: 15
+    app: 15
+  #使用沙箱环境
+  ali:
+    appId: 9021000123615552
+    publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZDpUviim45oK+W9WGJF3AhstKhh2kz9BlEow8vA1BtrIUz33YrlmSC2plNCKy/3DuQlOM4EXbsBZ6GSI/fea66mV06avlglQtdFgUmEV3lipCW5PZbn3QgQbR90e73SdNE7sk2xQXdBgBjPxQAKc/J04SuG8+uQV/tBAgs8eEVwoIVdlFGd/2fRO7iiOHxxmxtf1CiQhQ1IxTjNvxn5feixuKtJhiqRF7eckNkYKmmJDZXTUn19YWmea2Ifi5K0yJsGA43XYIS5Fp5k4W2Dce0hcx1jug4c4gopZP0989moaSuOU4yjfo02+4J6uNblnH9Iq2FP+RjX6on1IM8xaQIDAQAB
+    privateKey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCLLfoCD9mr8LQIsaeIvVQPTwKgYKjadSKLcEUaVlzvKBum/iXRkb0N6tgBoyD7cgJRxwQlg4mFVZL7HYN+aXyelfaE56ciSzX0ml/r4sVfW7Yil9gAf0Y1k82hvA1RSHw0LXT9yut7tI1pok4kfIr5peKnYtauNEU1AWCIsU9ByvGuqC7XNdFwYif0OOfRcTh6cyi0MxTtY3UuqP/7l2VY5Iwt256CZs2HnAEkvpXNhC8IVOVpOXJNw5DtKKZpHc/fqyzHOQ1O2MRWdz1wx62JiDELmxUIPmRLIhqz6OHfRt/nrdEVMJDqnzhUcpgn6o6GugpSx/j1lclILnbNuTcNAgMBAAECggEAfZi25QdysfPcM4BGJGJeKhZt01aG6eUMkHJ3GaZX5UX3dkIg1LbEuXt1BD02tVIT/8It3sCN6HHp2oyurfP5jo7b0OHPdGYUwbBR4WdaH4x+l0cZmJFCRXUk+s/d4L0dwGRJEAH/cTnk5y+dftWZAGKPX+gUvU3UKlocyB3h3Qc1TbRXbDQno5faErXSy6o2/5BCZhYFpLIR2pyBUIPyTReLNqogtHRtkDOhVFS3zw+Dil77nzEX4A4m3bu09cuXRcDDJpfyqBfAzOLWov8iXQftzxTerkpFY4yLHUdvZG3shfWwJDI3qws4hFZ161wUTnso2q0+bTNB61EV/lhurQKBgQDSiRxdEVY3U20BLNeV0z5ZOYJHDpjyQ+D4qZJLqQC0tm9ELCsNk7tDlz6tByoVDKGGZeAqZA3aAqE6h37NGK6PXuvGbnJUUuS5E3WTsi5TS4ExTCDrFGMlxwFicjUSu2nzy56/ugINKITdVZ0ggBVy/sccgw5LFQcXiYiup34uBwKBgQCpPCSopOmmQqdS8iFXQAmKFHwWFjs/nQFppf02nm34pUoryYzU5eds6sD50gB51B7WUc1yLnMNQK4rj7jtRpSIw4MuIRRJUFWA9X/cvJHkiG084ZsHJk12BwEl60zlrg2q1HU7XJ4ERATTovIUHoy4noZtBJCH3ZA3rLSSSmGtSwKBgQDEsj7ioKjpJbNIjsmX+/VbTQRvOK8iYNKV32+D6pBzRaKskYtjsusZGfv/khr58YQTWajWUgYy8ZQKZ77LBU1JO4iSKmv8Zjm0w/5sj+MCBR/dm9+BYdnD2KptfIAjUR+LG2jkfXcfLgT7+NnFHIVtm6UQ+UxoT2wBzIf7jRaxDwKBgEVK/O+YZprO29gYkBI7hCxnas9YVvYbAUMS1fURNZIDi7UWF3XslK+CB3XCyLMZaW7zm51O64jXnPj1JhDxP0woUYQHw1ipbfkZjDsDcvER8zhkX6ezxS+4en3eNGQuuiXiTAX8TC8O8rL9GwWl5JSLRBtLLSqUS8KgEmd70Ta1AoGAE3xkLexFcIfw/RD8uWQ8RYoGKqnbRjBQWFO79iAQ1OTt/Xbh1CTuifBl9WSs0LzvSfvx5gRq20dytviEECkLKBcR5VOzd7O7bTBkKoQ/DamF+gAvYI75jCy89ORdu8ppB1HyzmefGuiJJy+tBjS8bjonPPiClQtbf23N05xPclE=
+    serviceUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+    #同步回调地址
+    returnUrl: http://pwbpmn.natappfree.cc/pay/return
+    #异步回调
+    notifyUrl: http://pwbpmn.natappfree.cc/pay/notify
+    #重定向页面（支付成功或者失败的页面）
+    redirectUrl: http://erabbit.itheima.net/#/pay/callback
+    #IJPay 配置方式，直接配置回调的域名
+    domain: http://pwbpmn.natappfree.cc/
+  #PC微信支付
+  wx:
+    #应用编号
+    appid: wxffb3637a228223b8
+    #appSecret 是 appId 对应的接口密码，微信公众号授权获取用户 openId 时使用
+    appSecret: 12
+    #微信支付商户号
+    mchId: 1561414331
+    #API 私钥字符串
+    privateKey: -----BEGIN PRIVATE KEY-----MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQChXKhMDNcjxTBOFF2NOHai5NwChO12f3KQbmqCNEXWImqC5OtTEmcy/8Kzx8i243TtkVFv+Eqvac69/gpytl8sK8GFCzzUExgtejrtr3cJS//0eaJURGVG9zDPHrGV5vtXqmUPzAzX5SbMsIEKAZoe2bRJRz5zNNx+RMReSOC7F4xn+5tQd3XmZomwFGKO0oryKEocw5IGdYL61zRkUK9yRtyDZKq7hvPv11YQgnD8+EeGgo5/0kk62sbWW545Hw1qVqkQjkOfbdtLQjz4BnbakUwdRn3qoCjga8QQp0EKaGbIu4haHReyP8QQZhq0KlRX6XjBbrk8k4yKURVkjrxVAgMBAAECggEAT7HjrSvqVdBeOzHzwnvQnENMJjJg1dW8T3k5QXVvyILW+C73yt+b+KQ5FXHmv+03It5Sympm+JvZcBy4LE/GUZqKyZrzQAruNgfYcuvmbsEKeURZ2CSvoI0VnjYan16lZHbT0ymEblzO/Olv0fFYnUQItuho/51sCTENi0OTOtNtrWahbOnrBk+WsgmhNen+W/KdFXA9EOFKoFclAPEpCUa/mi1/w7AQecHZUISeRXixSZbhHIF4bf7BDXqkgtnWEkBX2hZP61TibGiRUgHvVC6V5+bi07cv7jr6IjJdNvwKMjAw2GgwZvyb8HvcQ0M7ULmYC6ZXYfVuvZDXJuMCAQKBgQDTAltDJ3oE1tJtk3qgichuWf8OKlvNmN2fxiDG+rxOgTi2gL9N3BKIYWQRo3f2B9C243Z1iM+Q/4LPii6FiLTSPQYRcNaryB1BtNGjexHMK5NuCfZ2etx3zmYz86YiWY6ZsFuISFttdPq01MKRxN/gIfiXvRlv4g1SIK6vy3lpjQKBgQDDxF/Q2xNFZq8WZ4M1DW3r9EcnYgn6U8qKfDJFvW4VT9bHOJOxxmZ3oIccSuPky7gm9DlxRC632z1FyPu6buC7pp7X8+JJPmkq2c0fKYl5B5boJdBCs8QrRQ89oORFuB3/2on9N6YCMccf1VQ3kspm5GhEkO/mdN7uNYBRq1oX6QKBgAT77UPszskGefn0ndTk7EMPBSNEhN6aWcHIYEXS7le8XaaR6/Le2+E0y7RO9CpvjNKFFOs5zA1Uu7ZDQU4OKJc+scH/tFJia659ouYFpin4bYcP3S53QHXj/i4D90ygaOngbIkPjHlNZg6XZ/EhgVg99S1AXjVyVXY3J2knmTqRAoGAfuhtyOJMMuBnPpnqB9ll2eFowxIeL8Zj9bSfjnBHzc8NB+cYb9WTFZfeHqw54ldiUPZfypqNwqiApx2semZoj51rOcmjdyHbYWkCPWJa+Te/T008HhGVaQuC3svPT5cU84jDjYCmwKNuV6eeycwCJAOLyG9A5d/7qObMAaWYaQkCgYBge3oRaGlDujnn0UDwLppiytsr4TDuDvkaRLCx4OrT86Yr+gWGjo46pBYIPJ8yy59yRTVYTpDiOLLC51qweh2wKo6+/qtzNwp41jadphbpEgGRE+mpvUWtlj4yPkojSY83Gh36eWVGISDG95z1DDjjsGT8hwQgcQJHrQhWn/cltQ==-----END PRIVATE KEY-----
+    #API V3密钥
+    apiV3Key: CZBK51236435wxpay435434323FFDuv3
+    # 商户证书序列号
+    mchSerialNo: 4B3B3DC35414AD50B1B755BAF8DE9CC7CF407606
+    #外网访问项目的域名，支付通知 中会使用
+    domain: api.mch.weixin.qq.com
+    notifyUrl:  http://www.eehp.cn
+    refundNotifyUrl: http://www.eehp.cn/#/pay/callback
+  # 微信小程序
+  wxApp:
+    #应用编号 #使用公司主体申请的
+    # appId: wx26729f20b9efae3a
+    appId: wxf7f8aa4c7e3d366e # 测试账号
+    #appSecret 是 appId 对应的接口密码，微信公众号授权获取用户 openId 时使用 #使用公司主体申请的
+    appSecret: 8e36ef64b26e533ad91f7e9a8088655e #测试账号 wxf7f8aa4c7e3d366e
+    # appSecret: b55779383972332e1c69cc05a5fb4489
+    #微信支付商户号 #临时使用需要更换
+    mchId: 1607048370
+    #API 密钥
+    partnerKey: f023175a3fd892cea46271e357c5969b
+    #apiclient_cert.p1 证书路径，在微信商户后台下载
+    certPath: 12
+    #外网访问项目的域名，支付通知 中会使用
+    domain: http://pcapi-xiaotuxian-front.itheima.net
+    notifyUrl: http://pcapi-xiaotuxian-front.itheima.net
+    refundNotifyUrl: http://erabbit.itheima.net/#/pay/callback
+    #微信提供的接口地址
+    seesionHost: https://api.weixin.qq.com/sns/jscode2session
+    grantType: authorization_code
+  wx-mini:
+    #应用编号
+    appId: wx26729f20b9efae3a
+    #appSecret 是 appId 对应的接口密码，微信公众号授权获取用户 openId 时使用
+    appSecret: b55779383972332e1c69cc05a5fb4489
+    #微信支付商户号
+    mchId: 1473426802
+    #API 密钥
+    partnerKey: T6m9iK73b0kn9g5v426MKfHQH7X8rKwb
+    #apiclient_cert.p1 证书路径，在微信商户后台下载
+    certPath: 12
+    #外网访问项目的域名，支付通知 中会使用   http://fvhyez.natappfree.cc-内网穿透的地址
+    domain: http://fvhyez.natappfree.cc
+    notifyUrl: http://d8wbvd.natappfree.cc/pay/wxMiniPayNotice
+    refundNotifyUrl: http://d8wbvd.natappfree.cc/pay/wxMiniPayNotice
+
+itheima:
+  swagger:
+    swagger-path: com.itheima.xiaotuxian
+    title: 店铺模块
+    description: xtx-pc-manager
+    contact-name: 上海黑马
+    contact-url: www.itheima.com
+    contact-email: itheima@itcast.cn

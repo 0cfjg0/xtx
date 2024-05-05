@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.manager.ManagerAuthorityMapper">
+    <select id="findAll" resultType="com.itheima.xiaotuxian.entity.manager.ManagerAuthority">
+        SELECT
+        manager_authority.*
+        FROM
+        manager_authority manager_authority
+        <if test="adminId !=null and adminId != ''">
+            LEFT JOIN manager_admin_authority manager_admin_authority ON manager_admin_authority.authority_id = manager_authority.id
+            LEFT JOIN manager_admin manager_admin ON manager_admin.id=manager_admin_authority.admin_id
+        </if>
+        <where>
+            manager_authority.is_delete=0
+            <if test="adminId !=null and adminId != ''">
+                AND manager_admin.id = #{adminId}
+            </if>
+        </where>
+    </select>
+</mapper>

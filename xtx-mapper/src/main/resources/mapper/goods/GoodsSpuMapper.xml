@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.goods.GoodsSpuMapper">
+    <select id="getFrontIdBySpuId" parameterType="java.util.List" resultType="java.lang.String">
+        SELECT DISTINCT ( cfr.front_id )
+        FROM goods_spu gs
+	        LEFT JOIN classification_front_relation cfr
+	        ON gs.classification_backend_id = cfr.object_id
+        WHERE
+	        gs.spu_code IN
+        <foreach collection="list" item="spuId" open="(" separator="," close=")">
+            #{spuId}
+        </foreach>
+    </select>
+</mapper>

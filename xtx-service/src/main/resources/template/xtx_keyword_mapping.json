@@ -1,0 +1,17 @@
+{
+  "properties": {
+    "associatedWords": {
+      "type": "completion",
+      "analyzer": "ik_smart"
+    },
+    "id": {
+      "type": "keyword"
+    },
+    "title": {
+      "type": "keyword"
+    },
+    "relations": {
+      "type": "object"
+    }
+  }
+}
