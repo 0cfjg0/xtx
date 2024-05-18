@@ -66,4 +66,6 @@ public interface OrderService extends IService<Order> {
     Order getOrder(String id);
 
     Pager<OrderPageVo> getOrderPage(String id, Integer orderState, Integer page, Integer pageSize);
+
+    Pager<OrderPageVo> getOrderPageAll(String id, Integer page, Integer pageSize);
 }

@@ -294,6 +294,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return pager;
     }
 
+    @Override
+    public Pager<OrderPageVo> getOrderPageAll(String id, Integer page, Integer pageSize) {
+        //分页查询
+        Integer index = (page-1)*pageSize;
+        System.out.println(index);
+        List<OrderPageVo> list = ordermapper.selectPageAll(id,index,pageSize);
+        for (int i = 0; i < list.size(); i++) {
+            //获取订单号
+            String orderId = list.get(i).getId();
+            //获取商品集合
+            List<OrderSkuVo> skus = ordermapper.getGoods(orderId);
+            for (int i1 = 0; i1 < skus.size(); i1++) {
+                //获取属性集合
+                skus.get(i1).setProperties(ordermapper.getProperties(orderId));
+            }
+            list.get(i).setSkus(skus);
+        }
+        Pager<OrderPageVo> pager = new Pager<>();
+        pager.setPage(page);
+        pager.setPageSize(pageSize);
+        //获取总记录数
+        Integer count = ordermapper.selectPageCountAll(id);
+        pager.setCounts(count);
+        //获取总页数
+//        Integer pages = ordermapper.selectPageNum(id,orderState,index,pageSize);
+        Integer pages = count/pageSize + 1;
+        pager.setPages(pages);
+        pager.setItems(list);
+        return pager;
+    }
+
 
     @Autowired
     private RefundRecordService refundRecordService;

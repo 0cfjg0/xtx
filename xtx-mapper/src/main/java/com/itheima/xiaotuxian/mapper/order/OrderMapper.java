@@ -12,6 +12,7 @@ import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -55,9 +56,17 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("select * from order_order where member_id = ${id} and order_state = ${orderState} limit ${index},${pageSize};")
     List<OrderPageVo> selectPage(String id,Integer orderState,Integer index,Integer pageSize);
 
+    //获取全部订单
+    @Select("select * from order_order where member_id = ${id} limit ${index},${pageSize};")
+    List<OrderPageVo> selectPageAll(String id,Integer index,Integer pageSize);
+
     //获取总数
     @Select("select count(*) from order_order where member_id = ${id} and order_state = ${orderState};")
     Integer selectPageCount(String id,Integer orderState);
+
+    //获取全部总数
+    @Select("select count(*) from order_order where member_id = ${id};")
+    Integer selectPageCountAll(String id);
 
     //获取页数
     @Select("select count(*) from order_order where member_id = ${id} and order_state = ${orderState} limit ${index},${pageSize};")
@@ -70,4 +79,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     //获取属性集合
     @Select("select gsp.property_main_name,gsp.property_value_name from goods_sku_property_value gsp inner join order_order_sku_property oosp on gsp.sku_id = oosp.order_sku_id where oosp.order_id = ${id};")
     List<OrderSkuPropertyVo> getProperties(String id);
+
+    //更新属性
+    @Update("Update order_order set order_state = 6 where id = ${id};")
+    void updateOrder(String id);
 }

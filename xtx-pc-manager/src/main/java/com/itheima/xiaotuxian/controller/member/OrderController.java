@@ -18,6 +18,7 @@ import com.itheima.xiaotuxian.entity.order.OrderLogistics;
 import com.itheima.xiaotuxian.entity.order.OrderSku;
 import com.itheima.xiaotuxian.entity.order.OrderSkuProperty;
 import com.itheima.xiaotuxian.exception.BusinessException;
+import com.itheima.xiaotuxian.mapper.order.OrderMapper;
 import com.itheima.xiaotuxian.service.goods.GoodsService;
 import com.itheima.xiaotuxian.service.goods.GoodsSkuService;
 import com.itheima.xiaotuxian.service.goods.GoodsSpuService;
@@ -110,9 +111,10 @@ public class OrderController extends BaseController {
     private OrderLogisticsDetailService orderLogisticsDetailService;
     @Autowired
     private GoodsSkuService goodsSkuService;
-
     @Autowired
     private GoodsSpuService goodsSpuService;
+    @Autowired
+    private OrderMapper ordermapper;
 
 
     /**
@@ -434,8 +436,12 @@ public class OrderController extends BaseController {
     public R<Pager<OrderPageVo>> getOrderPage(Integer orderState, Integer page, Integer pageSize){
         //暂时写死id
         String id = "1663375385531781122";
-        Pager<OrderPageVo> pager = orderService.getOrderPage(id,orderState,page,pageSize);
-        List<OrderPageVo> list = pager.getItems();
+        if(orderState==0){
+            Pager<OrderPageVo> paper = orderService.getOrderPageAll(id,page,pageSize);
+            return R.ok(paper);
+        }
+        Pager<OrderPageVo> paper = orderService.getOrderPage(id,orderState,page,pageSize);
+        List<OrderPageVo> list = paper.getItems();
         for (int i = 0; i < list.size(); i++) {
             //获取订单号
             String orderId = list.get(i).getId();
@@ -443,10 +449,12 @@ public class OrderController extends BaseController {
             var order = BeanUtil.toBean(list.get(i), Order.class);
             Long count = getCountDown(order);
             if(count == -1){
+                ordermapper.updateOrder(orderId);
                 list.get(i).setOrderState(6);
             }
             list.get(i).setCountdown(count);
         }
-        return R.ok(pager);
+        paper = orderService.getOrderPage(id,orderState,page,pageSize);
+        return R.ok(paper);
     }
 }
