@@ -32,11 +32,19 @@ public class CartController extends BaseController {
      * 保存购物车商品信息,返回需要的的cartVo
      */
     @PostMapping()
-    public CartVo  saveCart(@RequestBody CartSaveVo cartSaveVo){
+    public R<CartVo>  saveCart(@RequestBody CartSaveVo cartSaveVo){
         CartVo cartVo = userMemberCartService.saveCart(cartSaveVo);
-        return cartVo;
+        return R.ok(cartVo, R.SUCCESS);
     }
 
+    /**
+     * 获取用户购物车列表
+     */
+    @GetMapping()
+    public R getCarts(){
+        List<CartVo> list = userMemberCartService.getCarts();
+        return R.ok(list,R.SUCCESS);
+    }
 
 
 

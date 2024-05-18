@@ -60,17 +60,16 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     private HighLevelUtil highLevelUtil;
 
 
-    private String memberId;
-    private String client;
+    private String memberId = "1609504249362780161";
+    private String client = "a123456asd";
 
 
-    
     /**
-     * @description: 填充购物车的信息
      * @param {UserMemberCart} cart
-     * @param {String} memberId
-     * @param {String} client
+     * @param {String}         memberId
+     * @param {String}         client
      * @return {*}
+     * @description: 填充购物车的信息
      * @author: lbc
      */
     private CartVo fillCart(UserMemberCart cart, String memberId, String client) {
@@ -90,7 +89,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
             cartVo.setStock(sku.getSaleableInventory());
             //手机版的因为自己更改样式（只是值得拼接）,并且返回规格的集合
             var specs = new ArrayList<SkuSpecVo>();
-            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(),client,specs));
+            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(), client, specs));
             cartVo.setSpecs(specs);
             //当前价格
             cartVo.setNowOriginalPrice(sku.getSellingPrice());
@@ -154,7 +153,31 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
 
         //4.调用上面的fillCart()方法,将cartVo对象响应到前端
         CartVo cartVo = this.fillCart(userMemberCart, "1609504249362780161", "a123456asd");
+        System.out.println(cartVo);
         return cartVo;
+    }
+
+    /**
+     * 获取用户购物车列表
+     * //* @param memberId 用户Id
+     *
+     * @return 购物车列表
+     */
+    @Override
+    @Transactional
+    public List<CartVo> getCarts() {
+        //List<CartVo> list = userMemberCartMapper.getCarts(memberId);
+
+        List<UserMemberCart> userMemberList = userMemberCartMapper.getCarts(memberId);
+
+        List<CartVo> list = new ArrayList<>();
+
+        for (UserMemberCart userMemberCart : userMemberList) {
+            CartVo cartVo = this.fillCart(userMemberCart, memberId, client);
+            list.add(cartVo);
+
+        }
+        return list;
     }
 
 

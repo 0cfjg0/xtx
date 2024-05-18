@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Mapper
 public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
@@ -40,5 +41,18 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
      */
     @Select("select price from goods_spu where id = #{spuId}")
     BigDecimal selectCartPriceById(@Param("spuId") String spuId);
+
+
+
+    /**
+     * 获取用户购物车列表
+     * @param memberId
+     */
+    @Select("select * from user_member_cart where member_id = #{memberId}")
+    List<UserMemberCart> getCarts(@Param("memberId") String memberId);
+
+
+
+
 
 }

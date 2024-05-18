@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
 import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
+import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * @return 购物车商品信息
      */
     public CartVo saveCart(CartSaveVo cartSaveVo);
+
 
 
 
@@ -35,9 +37,10 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
     /**
      * 获取用户购物车列表
      *
-     * @param memberId 用户Id
+     //* @param memberId 用户Id
      * @return 购物车列表
      */
+    public List<CartVo> getCarts();
 
 
 
