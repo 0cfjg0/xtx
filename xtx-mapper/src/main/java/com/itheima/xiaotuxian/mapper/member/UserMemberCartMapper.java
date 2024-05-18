@@ -15,4 +15,7 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
 
     @Select("select * from user_member_cart where member_Id = #{userId}")
     List<UserMemberCart> getCartList(@Param("userId") String userId);
+
+
+    void mergeCartCout(String memberId);
 }

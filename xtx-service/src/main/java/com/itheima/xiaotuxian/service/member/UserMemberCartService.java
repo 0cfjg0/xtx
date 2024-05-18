@@ -35,5 +35,16 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      */
     List<CartVo> getCartList();
 
+    /**
+     * 获取用户购物车数量
+     * @return
+     */
+    Integer getCartCount();
 
+    /**
+     * 合并购物车
+     *
+     * @param cartSaveVo
+     */
+    void mergeCartCout(CartSaveVo cartSaveVo);
 }

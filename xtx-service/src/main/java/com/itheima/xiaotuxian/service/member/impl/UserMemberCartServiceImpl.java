@@ -51,6 +51,10 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Resource
     private UserMemberCartMapper userMemberCartMapper;
 
+    //下面是用户id和用户名,之后要改成从令牌获取
+    private String memberId = "1609802334668328961";
+    private String client = "用户778223";
+
 
     /**
      * @param {UserMemberCart} cart
@@ -110,19 +114,35 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Override
     @Transactional
     public List<CartVo> getCartList() {
-        //下面是用户id和用户名,之后要改成从令牌获取
-        String memberId = "1609802334668328961";
-        String client = "用户778223";
-
-        System.out.println("---------------------------456");
+//        System.out.println("---------------------------456");
         List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
-        System.out.println(cartList + "========================");
+//        System.out.println(cartList + "========================");
         List<CartVo> cartVoList = new ArrayList<>();
         for (UserMemberCart userMemberCart : cartList) {
             cartVoList.add(fillCart(userMemberCart, memberId, client));
         }
-//        fillCart(memberId);
         return cartVoList;
+    }
+
+    /**
+     * 获取用户购物车数量
+     *
+     * @return
+     */
+    @Override
+    public Integer getCartCount() {
+        Integer count = userMemberCartMapper.sumQuntity(memberId);
+        return count;
+    }
+
+    /**
+     * 合并购物车
+     *
+     * @param cartSaveVo
+     */
+    @Override
+    public void mergeCartCout(CartSaveVo cartSaveVo) {
+        userMemberCartMapper.mergeCartCout(memberId);
     }
 
     /**

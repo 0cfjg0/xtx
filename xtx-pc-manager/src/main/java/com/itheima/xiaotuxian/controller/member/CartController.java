@@ -26,18 +26,33 @@ public class CartController extends BaseController {
     @Autowired
     private UserMemberCartService cartService;
 
+    //购物车列表
     @GetMapping()
     public R getCartList() {
-        System.out.println(  "-----------------------------------ok");
+        System.out.println("-----------------------------------ok");
         List<CartVo> cartList = cartService.getCartList();
-        return R.ok(cartList,"78945613");
+        return R.ok(cartList, "78945613");
     }
+
+    /**
+     * 获取购物车数量
+     */
 
     @GetMapping("/count")
     public R getCartCount() {
-        System.out.println("-----------------------------------ok");
-        return R.ok(5);
+        Integer count = cartService.getCartCount();
+        return R.ok(count);
     }
 
-
+    /**
+     * 合并购物车
+     *
+     * @param cartSaveVo
+     * @return
+     */
+    @PostMapping("/merge")
+    public R mergeCartCout(@RequestBody CartSaveVo cartSaveVo) {
+        cartService.mergeCartCout(cartSaveVo);
+        return R.ok();
+    }
 }
