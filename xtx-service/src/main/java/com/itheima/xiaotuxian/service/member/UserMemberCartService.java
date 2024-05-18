@@ -37,6 +37,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
 
     /**
      * 获取用户购物车数量
+     *
      * @return
      */
     Integer getCartCount();
@@ -44,7 +45,15 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
     /**
      * 合并购物车
      *
-     * @param cartSaveVo
+     * @param cartSaveVoList
      */
-    void mergeCartCout(CartSaveVo cartSaveVo);
+    void mergeCartCout(List<CartSaveVo> cartSaveVoList);
+
+    /**
+     * 修改购物车商品
+     *
+     * @param cartSaveVo
+     * @return
+     */
+    CartVo updateUserCart(CartSaveVo cartSaveVo);
 }

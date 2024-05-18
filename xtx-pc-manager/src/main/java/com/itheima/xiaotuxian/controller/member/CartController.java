@@ -47,12 +47,19 @@ public class CartController extends BaseController {
     /**
      * 合并购物车
      *
-     * @param cartSaveVo
+     * @param cartSaveVoList
      * @return
      */
     @PostMapping("/merge")
-    public R mergeCartCout(@RequestBody CartSaveVo cartSaveVo) {
-        cartService.mergeCartCout(cartSaveVo);
+    public R mergeCartCout(@RequestBody List<CartSaveVo> cartSaveVoList) {
+        cartService.mergeCartCout(cartSaveVoList);
         return R.ok();
+    }
+
+    @PutMapping("/{skuId}")
+    public R updateUserCart(@RequestBody CartSaveVo cartSaveVo) {
+        System.out.println("==========" + cartSaveVo+"===================");
+        CartVo cartVo = cartService.updateUserCart(cartSaveVo);
+        return R.ok(cartVo, "修改成功");
     }
 }
