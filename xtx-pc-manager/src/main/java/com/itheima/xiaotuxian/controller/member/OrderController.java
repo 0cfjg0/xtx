@@ -41,15 +41,11 @@ import com.itheima.xiaotuxian.vo.member.OrderDetailVo;
 import com.itheima.xiaotuxian.vo.member.OrderPageVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuPropertyVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsDetailVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderGoodsVo;
-import com.itheima.xiaotuxian.vo.order.OrderLogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderPreSummaryVo;
-import com.itheima.xiaotuxian.vo.order.OrderPreVo;
-import com.itheima.xiaotuxian.vo.order.OrderSaveVo;
+import com.itheima.xiaotuxian.vo.order.*;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -209,6 +205,14 @@ public class OrderController extends BaseController {
      *
      * @return 订单信息
      */
+    @GetMapping("/pre")
+    public R<OrderPreVo> getOrder(){
+        String id = "1663375385531781122";
+        List<AddressSimpleVo> address = orderService.getaddress(id);
+        List<OrderGoodsVo> goods = orderService.getgoods(id);
+        OrderPreSummaryVo summary = orderService.getsummary(id);
+        return R.ok(new OrderPreVo(address,goods,summary));
+    }
 
 
 
@@ -334,11 +338,15 @@ public class OrderController extends BaseController {
     public R<OrderPreVo> repurchase(@PathVariable(name = "id") String id) {
         OrderPreVo result = new OrderPreVo();
         // 获取用户地址信息
-        String userId = getUserId();
+        //暂时注释,取消令牌校验
+//        String userId = getUserId();
+        String userId = id;
+        System.out.println(userId);
         Order originOrder = orderService.getById(id);
-        if(null == originOrder){
-            throw new BusinessException(ErrorMessageEnum.PARAMETER_ERROR);
-        }
+        //暂时注释,取消令牌校验
+//        if(null == originOrder){
+//            throw new BusinessException(ErrorMessageEnum.PARAMETER_ERROR);
+//        }
         List<OrderSku> orderSkus = orderSkuService.list(Wrappers.<OrderSku>lambdaQuery().eq(OrderSku::getOrderId,id));
          // 获取购物车商品信息 和 计算综述信息
         var summary = new OrderPreSummaryVo(0, BigDecimal.valueOf(0), BigDecimal.valueOf(0),
@@ -403,5 +411,42 @@ public class OrderController extends BaseController {
         return R.ok(result);
     }
 
+    //提交订单
+    @PostMapping("")
+    public R<OrderResponse> postOrder(@RequestBody OrderSaveVo orderSaveVo){
+        System.out.println(orderSaveVo);
+        return R.ok(orderService.postOrder(orderSaveVo));
+    }
 
+    //获取订单信息
+    @GetMapping("/{id}")
+    public R<OrderResponseVo> getOrder(@PathVariable String id){
+        Order order = orderService.getOrder(id);
+        Long countdown = getCountDown(order);
+        //将order对象转成封装对象
+        var orderRv = BeanUtil.toBean(order, OrderResponseVo.class);
+        orderRv.setCountdown(countdown.intValue());
+        return R.ok(orderRv);
+    }
+
+    //获取个人中心订单
+    @GetMapping("")
+    public R<Pager<OrderPageVo>> getOrderPage(Integer orderState, Integer page, Integer pageSize){
+        //暂时写死id
+        String id = "1663375385531781122";
+        Pager<OrderPageVo> pager = orderService.getOrderPage(id,orderState,page,pageSize);
+        List<OrderPageVo> list = pager.getItems();
+        for (int i = 0; i < list.size(); i++) {
+            //获取订单号
+            String orderId = list.get(i).getId();
+            //转类型
+            var order = BeanUtil.toBean(list.get(i), Order.class);
+            Long count = getCountDown(order);
+            if(count == -1){
+                list.get(i).setOrderState(6);
+            }
+            list.get(i).setCountdown(count);
+        }
+        return R.ok(pager);
+    }
 }

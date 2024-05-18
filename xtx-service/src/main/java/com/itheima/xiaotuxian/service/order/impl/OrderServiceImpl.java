@@ -13,6 +13,7 @@ import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.CommonStatic;
 import com.itheima.xiaotuxian.constant.statics.GoodsStatic;
 import com.itheima.xiaotuxian.constant.statics.OrderStatic;
+import com.itheima.xiaotuxian.entity.goods.GoodsSku;
 import com.itheima.xiaotuxian.entity.goods.GoodsSkuPropertyValue;
 import com.itheima.xiaotuxian.entity.order.Order;
 import com.itheima.xiaotuxian.entity.order.OrderLogistics;
@@ -39,12 +40,13 @@ import com.itheima.xiaotuxian.service.order.RefundRecordService;
 import com.itheima.xiaotuxian.service.queue.DelayQueueManagerService;
 import com.itheima.xiaotuxian.service.search.SearchGoodsService;
 import com.itheima.xiaotuxian.util.BaseUtil;
+import com.itheima.xiaotuxian.vo.Pager;
 import com.itheima.xiaotuxian.vo.RefundRecordVo;
-import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsDetailVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderLogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderSaveVo;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsDetailVo;
+import com.itheima.xiaotuxian.vo.member.*;
+import com.itheima.xiaotuxian.vo.order.*;
+import io.swagger.models.auth.In;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -95,7 +97,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private OrderLogisticsDetailService orderLogisticsDetailService;
     @Autowired
     private DelayQueueManagerService delayQueueManagerService;
-
+    @Autowired
+    private OrderMapper ordermapper;
 
 
 
@@ -112,6 +115,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     public List<Order> findAll(Integer orderState) {
+
         return list(Wrappers.<Order>lambdaQuery().eq(Order::getOrderState, orderState));
     }
 
@@ -177,7 +181,118 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderLogisticsVo;
     }
 
+    //获取地址
+    @Override
+    public List<AddressSimpleVo> getaddress(String id) {
+        return ordermapper.getaddress(id);
+    }
 
+    //获取商品信息
+    @Override
+    public List<OrderGoodsVo> getgoods(String id) {
+        List<OrderGoodsVo> list = ordermapper.getgoods(id);
+        for (int i = 0; i < list.size(); i++) {
+            String goodid = list.get(i).getId();
+            OrderGoodsVo orderGoodsVo = list.get(i);
+            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(goodid);
+            orderGoodsVo.setId(goodsDetailVo.getId());
+            orderGoodsVo.setName(goodsDetailVo.getName());
+            orderGoodsVo.setPicture(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
+            BigDecimal count = ordermapper.getSum(id);
+            orderGoodsVo.setCount(ordermapper.getCount(id));
+            //小计
+            orderGoodsVo.setTotalPrice(count);
+            //实付
+            orderGoodsVo.setTotalPayPrice(count);
+            System.out.println("url---------------:" + goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
+        }
+        return list;
+    }
+
+    //获取订单结算页的summary
+    @Override
+    public OrderPreSummaryVo getsummary(String id) {
+        OrderPreSummaryVo orderPreSummaryVo = new OrderPreSummaryVo();
+        orderPreSummaryVo.setTotalPrice(ordermapper.getSum(id));
+        //写死邮费
+        orderPreSummaryVo.setPostFee(BigDecimal.valueOf(6));
+        orderPreSummaryVo.setGoodsCount(ordermapper.getCount(id));
+        orderPreSummaryVo.setTotalPayPrice(orderPreSummaryVo.getTotalPrice().add(orderPreSummaryVo.getPostFee()));
+        return orderPreSummaryVo;
+    }
+
+    @Override
+    public OrderResponse postOrder(OrderSaveVo orderSaveVo) {
+        Order order = new Order();
+        order.setCreator("1663375385531781122");
+        order.setMemberId("1663375385531781122");
+        order.setCreateTime(LocalDateTime.now());
+        order.setUpdateTime(LocalDateTime.now());
+        order.setPayType(orderSaveVo.getPayType());
+        order.setPayChannel(orderSaveVo.getPayChannel());
+        order.setPayLatestTime(LocalDateTime.now().minusMinutes(-15));
+        List<GoodsSku> listsku = new ArrayList<>();
+        BigDecimal sum = BigDecimal.valueOf(0);
+        for (CartVo good : orderSaveVo.getGoods()) {
+            listsku.add(ordermapper.getGoodBySku(good.getSkuId()));
+        }
+        for (GoodsSku goodsSku : listsku) {
+            sum = sum.add(goodsSku.getSellingPrice());
+        }
+        order.setPayMoney(sum);
+        //获取地址
+        List<AddressSimpleVo> list = ordermapper.getaddressById(orderSaveVo.getAddressId());
+        AddressSimpleVo address = new AddressSimpleVo();
+        for (int i = 0; i < list.size(); i++) {
+            if(list.get(i).getIsDefault()==0){
+                address = list.get(i);
+                break;
+            }
+        }
+        order.setReceiverContact(address.getReceiver());
+        order.setReceiverAddress(address.getAddress());
+        order.setReceiverMobile(address.getContact());
+        System.out.println(order);
+        super.save(order);
+        return new OrderResponse(order.getId(),"1","1");
+    }
+
+    @Override
+    public Order getOrder(String id) {
+        Order order = ordermapper.getOrder(id);
+        return order;
+    }
+
+    @Override
+    public Pager<OrderPageVo> getOrderPage(String id, Integer orderState, Integer page, Integer pageSize) {
+        //分页查询
+        Integer index = (page-1)*pageSize;
+        System.out.println(index);
+        List<OrderPageVo> list = ordermapper.selectPage(id,orderState,index,pageSize);
+        for (int i = 0; i < list.size(); i++) {
+            //获取订单号
+            String orderId = list.get(i).getId();
+            //获取商品集合
+            List<OrderSkuVo> skus = ordermapper.getGoods(orderId);
+            for (int i1 = 0; i1 < skus.size(); i1++) {
+                //获取属性集合
+                skus.get(i1).setProperties(ordermapper.getProperties(orderId));
+            }
+            list.get(i).setSkus(skus);
+        }
+        Pager<OrderPageVo> pager = new Pager<>();
+        pager.setPage(page);
+        pager.setPageSize(pageSize);
+        //获取总记录数
+        Integer count = ordermapper.selectPageCount(id,orderState);
+        pager.setCounts(count);
+        //获取总页数
+//        Integer pages = ordermapper.selectPageNum(id,orderState,index,pageSize);
+        Integer pages = count/pageSize + 1;
+        pager.setPages(pages);
+        pager.setItems(list);
+        return pager;
+    }
 
 
     @Autowired

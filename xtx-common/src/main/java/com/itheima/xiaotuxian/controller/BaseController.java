@@ -52,12 +52,13 @@ public abstract class BaseController {
     }
 
     protected String getUserId() {
+        //暂时注释,取消令牌校验
         var userId = getTokenValue("id");
         var token = request.getHeader("Authorization").replace("Bearer ", "");
-        //String redisToken = redisTemplate.opsForValue().get(RedisKeyStatic.KEY_PREFIX_TOKEN + userId + ":" + token);
+//        String redisToken = redisTemplate.opsForValue().get(RedisKeyStatic.KEY_PREFIX_TOKEN + userId + ":" + token);
         // TODO 获取token
         String redisToken = "TOKEN";
-
+//        暂时注释,取消令牌校验
         if(null == redisToken){
             throw new AuthException(ErrorMessageEnum.TOKEN_ERROR);
         }
