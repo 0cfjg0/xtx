@@ -23,8 +23,21 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/member/cart")
 public class CartController extends BaseController {
+    @Autowired
+    private UserMemberCartService cartService;
 
+    @GetMapping()
+    public R getCartList() {
+        System.out.println(  "-----------------------------------ok");
+        List<CartVo> cartList = cartService.getCartList();
+        return R.ok(cartList,"78945613");
+    }
 
+    @GetMapping("/count")
+    public R getCartCount() {
+        System.out.println("-----------------------------------ok");
+        return R.ok(5);
+    }
 
 
 }

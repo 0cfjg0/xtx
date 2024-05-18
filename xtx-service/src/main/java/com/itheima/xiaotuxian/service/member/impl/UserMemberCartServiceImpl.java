@@ -52,13 +52,12 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     private UserMemberCartMapper userMemberCartMapper;
 
 
-    
     /**
-     * @description: 填充购物车的信息
      * @param {UserMemberCart} cart
-     * @param {String} memberId
-     * @param {String} client
+     * @param {String}         memberId
+     * @param {String}         client
      * @return {*}
+     * @description: 填充购物车的信息
      * @author: lbc
      */
     private CartVo fillCart(UserMemberCart cart, String memberId, String client) {
@@ -78,7 +77,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
             cartVo.setStock(sku.getSaleableInventory());
             //手机版的因为自己更改样式（只是值得拼接）,并且返回规格的集合
             var specs = new ArrayList<SkuSpecVo>();
-            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(),client,specs));
+            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(), client, specs));
             cartVo.setSpecs(specs);
             //当前价格
             cartVo.setNowOriginalPrice(sku.getSellingPrice());
@@ -100,6 +99,30 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         cartVo.setSelected(cart.getSeleted());
         cartVo.setCount(cart.getQuantity());
         return cartVo;
+    }
+
+    /**
+     * 获取用户购物车列表
+     *
+     * @param memberId 用户Id
+     * @return 购物车列表
+     */
+    @Override
+    @Transactional
+    public List<CartVo> getCartList() {
+        //下面是用户id和用户名,之后要改成从令牌获取
+        String memberId = "1609802334668328961";
+        String client = "用户778223";
+
+        System.out.println("---------------------------456");
+        List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
+        System.out.println(cartList + "========================");
+        List<CartVo> cartVoList = new ArrayList<>();
+        for (UserMemberCart userMemberCart : cartList) {
+            cartVoList.add(fillCart(userMemberCart, memberId, client));
+        }
+//        fillCart(memberId);
+        return cartVoList;
     }
 
     /**
