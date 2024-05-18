@@ -8,6 +8,10 @@ import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.CommonStatic;
 import com.itheima.xiaotuxian.constant.statics.GoodsStatic;
 import com.itheima.xiaotuxian.constant.statics.UserMemberStatic;
+import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
+import com.itheima.xiaotuxian.entity.goods.GoodsSpuProperty;
+import com.itheima.xiaotuxian.entity.member.UserMember;
+import com.itheima.xiaotuxian.entity.member.UserMemberAddress;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
 import com.itheima.xiaotuxian.exception.BusinessException;
 import com.itheima.xiaotuxian.mapper.member.UserMemberCartMapper;
@@ -16,11 +20,13 @@ import com.itheima.xiaotuxian.service.goods.GoodsSpuService;
 import com.itheima.xiaotuxian.service.marketing.MarketingRecommendService;
 import com.itheima.xiaotuxian.service.member.UserMemberCartService;
 import com.itheima.xiaotuxian.service.member.UserMemberCollectService;
+import com.itheima.xiaotuxian.util.HighLevelUtil;
 import com.itheima.xiaotuxian.vo.goods.goods.SkuSpecVo;
 import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 import org.apache.commons.lang3.BooleanUtils;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,8 +54,14 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Autowired
     private UserMemberCollectService collectService;
 
-    @Resource
+    @Autowired
     private UserMemberCartMapper userMemberCartMapper;
+    @Autowired
+    private HighLevelUtil highLevelUtil;
+
+
+    private String memberId;
+    private String client;
 
 
     
@@ -105,8 +117,45 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     /**
      * 新增购物车信息
      *
-     * @param saveVo
-     * @return
+     * @param cartSaveVo
+     * @return CartVo
      */
+    @Override
+    @Transactional
+    public CartVo saveCart(CartSaveVo cartSaveVo) {
+        //1.创建 用户购物车 对象
+        UserMemberCart userMemberCart = new UserMemberCart();
+        //2.补全属性
+        userMemberCart.setCreateTime(LocalDateTime.now());
+
+        ////创建用户对象,获取用户ID
+        //UserMember userMember = new UserMember();
+        //userMemberCart.setMemberId(userMember.getId());
+
+        userMemberCart.setMemberId("1609504249362780161");
+
+        userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
+        userMemberCart.setQuantity(cartSaveVo.getCount());
+        userMemberCart.setSeleted(cartSaveVo.getSelected());
+
+        //通过skuId,从数据库中找到spuId
+        String spuId = userMemberCartMapper.selectCart(cartSaveVo.getSkuId());
+        userMemberCart.setSpuId(spuId);
+        //通过spuId,从数据库中找到spuId对应的price
+        BigDecimal price = userMemberCartMapper.selectCartPriceById(spuId);
+        userMemberCart.setPrice(price);
+
+        ////保存 购物车信息 到 购物车表中
+        //int insert = userMemberCartMapper.insert(userMemberCart);
+        //String client = highLevelUtil.getClient().toString();
+
+        //3.保存 购物车信息 到 购物车表中
+        userMemberCartMapper.saveCart(userMemberCart);
+
+        //4.调用上面的fillCart()方法,将cartVo对象响应到前端
+        CartVo cartVo = this.fillCart(userMemberCart, "1609504249362780161", "a123456asd");
+        return cartVo;
+    }
+
 
 }

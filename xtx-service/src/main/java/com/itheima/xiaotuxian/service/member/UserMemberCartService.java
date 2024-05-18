@@ -9,13 +9,14 @@ import com.itheima.xiaotuxian.vo.member.CartVo;
 import java.util.List;
 
 public interface UserMemberCartService extends IService<UserMemberCart> {
+
     /**
      * 保存购物车商品信息
      *
-     * @param saveVo 商品信息
+     * @param cartSaveVo
      * @return 购物车商品信息
      */
-
+    public CartVo saveCart(CartSaveVo cartSaveVo);
 
 
 

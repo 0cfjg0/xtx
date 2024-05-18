@@ -24,6 +24,19 @@ import java.util.stream.Stream;
 @RequestMapping("/member/cart")
 public class CartController extends BaseController {
 
+    @Autowired
+    private UserMemberCartService userMemberCartService;
+
+
+    /**
+     * 保存购物车商品信息,返回需要的的cartVo
+     */
+    @PostMapping()
+    public CartVo  saveCart(@RequestBody CartSaveVo cartSaveVo){
+        CartVo cartVo = userMemberCartService.saveCart(cartSaveVo);
+        return cartVo;
+    }
+
 
 
 
