@@ -20,6 +20,7 @@ import com.itheima.xiaotuxian.service.member.UserMemberService;
 import com.itheima.xiaotuxian.util.JwtUtil;
 import com.itheima.xiaotuxian.util.SmsUtil;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
+import com.itheima.xiaotuxian.vo.member.request.LoginVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -313,5 +314,21 @@ public class UserMemberServiceImpl extends ServiceImpl<UserMemberMapper, UserMem
         return null;
 
     }
+//登入
+    @Override
+    public LoginVo login(LoginVo vo) {
+      LoginVo v=  userMemberOpenInfoMapper.login(vo);
+
+        return v;
+    }
+
+    @Override
+    public UserMember select(LoginVo vo) {
+        UserMember userMember=userMemberOpenInfoMapper.select(vo);
+
+        return userMember;
+    }
+
+
 
 }

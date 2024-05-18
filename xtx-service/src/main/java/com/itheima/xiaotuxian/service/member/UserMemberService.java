@@ -3,6 +3,7 @@ package com.itheima.xiaotuxian.service.member;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
+import com.itheima.xiaotuxian.vo.member.request.LoginVo;
 
 /**
  * 用户信息处理service
@@ -117,4 +118,10 @@ public interface UserMemberService extends IService<UserMember> {
      * @return
      */
     UserMember findByOpenid(String openid);
+    //登入
+    LoginVo login(LoginVo vo);
+
+
+
+    UserMember select(LoginVo vo);
 }

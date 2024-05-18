@@ -61,5 +61,4 @@ public class PublicController {
      * @param type   发送短信类型，取值范围[register、login]
      * @return 返回信息
      */
-
 }

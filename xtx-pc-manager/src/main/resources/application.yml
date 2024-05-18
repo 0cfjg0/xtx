@@ -1,6 +1,11 @@
 server:
   port: 5032
 spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.200.129:3306/xtx_manager #url
+    username: root # 用户名
+    password: xc@123pawsd!!  # 密码
   resources:
     add-mappings:  false
   mvc:

@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.RedisKeyStatic;
+import com.itheima.xiaotuxian.controller.BaseController;
 import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.exception.AuthException;
 import com.itheima.xiaotuxian.exception.BusinessException;
@@ -67,7 +68,16 @@ public class LoginController {
      * @param vo 登录信息
      * @return 登录信息
      */
+    @PostMapping
+public R<String> login(@RequestBody LoginVo vo){
 
+    LoginVo v = userMemberService.login(vo);
+        UserMember userMember = userMemberService.select(vo);
+
+        System.out.println(userMember);
+        String token = userMemberService.getToken(userMember.getId(),userMember.getAccount(),userMember.getNickname());
+        return R.ok(token);
+    }
 
 
 
