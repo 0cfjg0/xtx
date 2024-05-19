@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -24,6 +25,7 @@ import com.itheima.xiaotuxian.vo.member.request.LoginVo;
 import com.itheima.xiaotuxian.vo.member.response.LoginResultVo;
 import com.itheima.xiaotuxian.vo.token.TokenRequestVo;
 
+import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +60,9 @@ public class LoginController {
     @Resource
     protected HttpServletRequest request;
 
-    /** 默认的用户头像信息 */
+    /**
+     * 默认的用户头像信息
+     */
     @Value("${account.avatar:}")
     private String avatar;
 
@@ -69,17 +73,18 @@ public class LoginController {
      * @return 登录信息
      */
     @PostMapping
-public R<String> login(@RequestBody LoginVo vo){
+    public R<LoginResultVo> login(@RequestBody LoginVo vo) {
 
-    LoginVo v = userMemberService.login(vo);
+        LoginVo v = userMemberService.login(vo);
         UserMember userMember = userMemberService.select(vo);
 
         System.out.println(userMember);
-        String token = userMemberService.getToken(userMember.getId(),userMember.getAccount(),userMember.getNickname());
-        return R.ok(token);
+        String token = userMemberService.getToken(userMember.getId(), userMember.getAccount(), userMember.getNickname());
+        Claims claims = JwtUtil.getClaims(token);
+        System.out.println("claims"+claims);
+        LoginResultVo loginResultVo = convertMemberToLoginResult(userMember);
+        return R.ok(loginResultVo);
     }
-
-
 
 
     /**
@@ -88,8 +93,12 @@ public R<String> login(@RequestBody LoginVo vo){
      * @param mobile 手机号
      * @return 验证码
      */
-
-
+//    @PostMapping("/{mobile}")
+//    public R<String> code(@PathVariable String mobile, HttpSession session){
+//       String ss= userMemberService.code(mobile,session);
+//
+//        return R.ok(ss);
+//    }
 
     /**
      * 手机验证码登录
@@ -284,9 +293,9 @@ public R<String> login(@RequestBody LoginVo vo){
     }
 
     /**
-     * @description:
      * @param {*}
      * @return {*}
+     * @description:
      * @author: lbc
      */
     @GetMapping("/expireToken")
@@ -305,14 +314,14 @@ public R<String> login(@RequestBody LoginVo vo){
     }
 
     /**
-     * @description:
      * @param {*}
      * @return {*}
+     * @description:
      * @author: lbc
      */
     @GetMapping("/expireRefreshToken")
     public R<Boolean> expireRefreshToken(@RequestParam(name = "id") String id,
-            @RequestParam(name = "token") String token) {
+                                         @RequestParam(name = "token") String token) {
         String s = redisTemplate.opsForValue().get(RedisKeyStatic.KEY_PREFIX_REFESH_TOKEN + id + ":" + token);
         Boolean expireFlag = redisTemplate.expire(RedisKeyStatic.KEY_PREFIX_REFESH_TOKEN + id + ":" + token, 0,
                 TimeUnit.SECONDS);
@@ -326,4 +335,5 @@ public R<String> login(@RequestBody LoginVo vo){
 
         return R.ok(expireFlag);
     }
+
 }

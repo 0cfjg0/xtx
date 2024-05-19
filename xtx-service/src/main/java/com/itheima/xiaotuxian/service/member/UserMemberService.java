@@ -5,6 +5,8 @@ import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
 import com.itheima.xiaotuxian.vo.member.request.LoginVo;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * 用户信息处理service
  * @author zsf
@@ -33,7 +35,7 @@ public interface UserMemberService extends IService<UserMember> {
      * @param mobile 手机号
      * @return 操作结果
      */
-
+//    String code(String mobile, HttpSession session) ;
 
 
     /**
@@ -62,7 +64,6 @@ public interface UserMemberService extends IService<UserMember> {
     Boolean sendResetCode(String mobile);
 
 
-
     /**
      * 三方账号绑定
      *
@@ -89,39 +90,38 @@ public interface UserMemberService extends IService<UserMember> {
      */
 
 
-
     /**
      * 获取新的token值
-     * @param id id
-     * @param account 账户信息
+     *
+     * @param id       id
+     * @param account  账户信息
      * @param nickname 昵称信息
      * @return string token信息
      */
-   String getToken(String id, String account, String nickname);
-
-
-
-
+    String getToken(String id, String account, String nickname);
 
 
     /**
      * 解除三方绑定方法
-     * @description: 解除三方绑定方法
+     *
      * @param userMember userMember
      * @return void
-     */    
+     * @description: 解除三方绑定方法
+     */
     void unbind(UserMember userMember);
 
     /**
      * 根据openid查询用户信息
+     *
      * @param openid
      * @return
      */
     UserMember findByOpenid(String openid);
+
     //登入
     LoginVo login(LoginVo vo);
 
 
-
     UserMember select(LoginVo vo);
+
 }

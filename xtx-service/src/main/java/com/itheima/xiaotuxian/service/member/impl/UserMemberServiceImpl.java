@@ -27,10 +27,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -324,11 +326,19 @@ public class UserMemberServiceImpl extends ServiceImpl<UserMemberMapper, UserMem
 
     @Override
     public UserMember select(LoginVo vo) {
-        UserMember userMember=userMemberOpenInfoMapper.select(vo);
 
+        UserMember userMember=userMemberOpenInfoMapper.select(vo);
         return userMember;
     }
 
+//    @Override
+//    public String code(String mobile, HttpSession session) {
+//        String s=userMemberOpenInfoMapper.code(mobile);
+//        if (s==null){
+//
+//        }
+//        return null;
+//    }
 
 
 }

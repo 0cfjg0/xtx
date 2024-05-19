@@ -21,5 +21,7 @@ public interface UserMemberOpenInfoMapper extends BaseMapper<UserMemberOpenInfo>
     @Select("select * from xtx_manager.user_member where  account=#{account} and password=#{password}")
     UserMember select(LoginVo vo);
 
-
+//@Select("select * from xtx_manager.user_member where mobile=#{mabile}")
+//    String code(String mobile);
+//
 }
