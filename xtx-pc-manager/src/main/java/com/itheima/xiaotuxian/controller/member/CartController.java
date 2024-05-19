@@ -57,9 +57,22 @@ public class CartController extends BaseController {
     }
 
     @PutMapping("/{skuId}")
-    public R updateUserCart(@RequestBody CartSaveVo cartSaveVo) {
-        System.out.println("==========" + cartSaveVo+"===================");
+    public R updateUserCart(@RequestBody CartSaveVo cartSaveVo, @PathVariable String skuId) {
+        cartSaveVo.setSkuId(skuId);
         CartVo cartVo = cartService.updateUserCart(cartSaveVo);
         return R.ok(cartVo, "修改成功");
+    }
+
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    @DeleteMapping()
+    public R deleteUserCart(@RequestBody BatchDeleteCartVo batchDeleteCartVo) {
+        System.out.println("---------------" + batchDeleteCartVo);
+        cartService.deleteUserCart(batchDeleteCartVo);
+        return R.ok();
     }
 }

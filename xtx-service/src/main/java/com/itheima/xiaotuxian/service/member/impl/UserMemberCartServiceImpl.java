@@ -196,9 +196,27 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      */
     @Override
     public CartVo updateUserCart(CartSaveVo cartSaveVo) {
-        UserMemberCart userMemberCart = userMemberCartMapper.updateUserCart(cartSaveVo, memberId);
-        CartVo cartVo = fillCart(userMemberCart, memberId, client);
+        UserMemberCart cart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
+        cart.setQuantity(cartSaveVo.getCount());
+        cart.setSeleted(cartSaveVo.getSelected());
+        int i = userMemberCartMapper.updateById(cart);
+        System.out.println("==========================" + i);
+        CartVo cartVo = fillCart(cart, memberId, client);
         return cartVo;
+    }
+
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    @Override
+    public void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo) {
+        List<String> ids = batchDeleteCartVo.getIds();
+        for (String id : ids) {
+            userMemberCartMapper.deleteUserCart(memberId, id);
+        }
     }
 
     /**

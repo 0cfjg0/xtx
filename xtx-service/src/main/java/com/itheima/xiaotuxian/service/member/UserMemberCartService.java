@@ -56,4 +56,12 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * @return
      */
     CartVo updateUserCart(CartSaveVo cartSaveVo);
+
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo);
 }
