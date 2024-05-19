@@ -4,7 +4,7 @@
     <select id="countOrderBySpuId" resultType="java.lang.Integer">
         SELECT   count(*) from (
             SELECT COUNT( * ) FROM order_order_sku
-                WHERE (spu_id = #{spuId}) GROUP BY order_id
+                WHERE (spu_id = #{spuId} and order_id = #{id})
         ) orderSku
 
     </select>

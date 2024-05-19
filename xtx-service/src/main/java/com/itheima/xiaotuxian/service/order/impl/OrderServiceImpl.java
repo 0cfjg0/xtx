@@ -15,12 +15,7 @@ import com.itheima.xiaotuxian.constant.statics.GoodsStatic;
 import com.itheima.xiaotuxian.constant.statics.OrderStatic;
 import com.itheima.xiaotuxian.entity.goods.GoodsSku;
 import com.itheima.xiaotuxian.entity.goods.GoodsSkuPropertyValue;
-import com.itheima.xiaotuxian.entity.order.Order;
-import com.itheima.xiaotuxian.entity.order.OrderLogistics;
-import com.itheima.xiaotuxian.entity.order.OrderLogisticsDetail;
-import com.itheima.xiaotuxian.entity.order.OrderSku;
-import com.itheima.xiaotuxian.entity.order.OrderSkuProperty;
-import com.itheima.xiaotuxian.entity.order.RefundRecord;
+import com.itheima.xiaotuxian.entity.order.*;
 import com.itheima.xiaotuxian.entity.record.RecordOrderSpu;
 import com.itheima.xiaotuxian.exception.BusinessException;
 import com.itheima.xiaotuxian.mapper.goods.GoodsSkuPropertyValueMapper;
@@ -55,10 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
@@ -191,6 +183,30 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public List<OrderGoodsVo> getgoods(String id) {
         List<OrderGoodsVo> list = ordermapper.getgoods(id);
+        //去重
+        for (int i = 0; i < list.size(); i++) {
+            OrderGoodsVo good = list.get(i);
+            if(good.getCount()!=1){
+                int count = good.getCount();
+                good.setCount(1);
+                for (Integer i1 = 0; i1 < count-1; i1++) {
+                    list.add(good);
+                }
+            }
+        }
+        Map<OrderGoodsVo,Integer> map = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            Integer count = map.put(list.get(i),1);
+            if(count!=null){
+                map.put(list.get(i),count+1);
+            }
+        }
+        List<OrderGoodsVo> temp = new ArrayList<>();
+        for (Map.Entry<OrderGoodsVo, Integer> entry : map.entrySet()) {
+            entry.getKey().setCount(entry.getValue());
+            temp.add(entry.getKey());
+        }
+        list = temp;
         for (int i = 0; i < list.size(); i++) {
             String goodid = list.get(i).getId();
             OrderGoodsVo orderGoodsVo = list.get(i);
@@ -198,12 +214,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             orderGoodsVo.setId(goodsDetailVo.getId());
             orderGoodsVo.setName(goodsDetailVo.getName());
             orderGoodsVo.setPicture(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
-            BigDecimal count = ordermapper.getSum(id);
-            orderGoodsVo.setCount(ordermapper.getCount(id));
+            String text = "";
+            //查询和设置商品属性
+            for (OrderProperties property : ordermapper.getSpuProperties(list.get(i).getId())) {
+                text += property.getPropertyMainName()+": "+property.getPropertyValueName()+"\n";
+            }
+            list.get(i).setAttrsText(text);
+//            BigDecimal count = ordermapper.getSum(id);
+            //计算总数
+//            Integer count = countOrderBySpuId(list.get(i).getId());
+//            orderGoodsVo.setCount(ordermapper.getCount(id));
+//            orderGoodsVo.setCount(count)
+            Integer count = list.get(i).getCount();
             //小计
-            orderGoodsVo.setTotalPrice(count);
+            orderGoodsVo.setTotalPrice(list.get(i).getPrice().multiply(BigDecimal.valueOf(count)));
             //实付
-            orderGoodsVo.setTotalPayPrice(count);
+            orderGoodsVo.setTotalPayPrice(list.get(i).getPrice().multiply(BigDecimal.valueOf(count)));
             System.out.println("url---------------:" + goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
         }
         return list;
@@ -216,7 +242,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         orderPreSummaryVo.setTotalPrice(ordermapper.getSum(id));
         //写死邮费
         orderPreSummaryVo.setPostFee(BigDecimal.valueOf(6));
-        orderPreSummaryVo.setGoodsCount(ordermapper.getCount(id));
+        Integer count = 0;
+        List<OrderGoodsVo> list = ordermapper.getgoods(id);
+        for (int i = 0; i < list.size(); i++) {
+            count += list.get(i).getCount();
+        }
+        orderPreSummaryVo.setGoodsCount(count);
         orderPreSummaryVo.setTotalPayPrice(orderPreSummaryVo.getTotalPrice().add(orderPreSummaryVo.getPostFee()));
         return orderPreSummaryVo;
     }
@@ -224,6 +255,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public OrderResponse postOrder(OrderSaveVo orderSaveVo) {
         Order order = new Order();
+        //写死id
         order.setCreator("1663375385531781122");
         order.setMemberId("1663375385531781122");
         order.setCreateTime(LocalDateTime.now());
@@ -254,6 +286,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setReceiverMobile(address.getContact());
         System.out.println(order);
         super.save(order);
+        //insert对应商品
+        for (GoodsSku goodsSku : listsku) {
+            OrderSku orderSku = new OrderSku();
+            orderSku.setOrderId(order.getId());
+            orderSku.setSpuId(goodsSku.getSpuId());
+            orderSku.setSkuId(goodsSku.getId());
+            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(orderSku.getSpuId());
+            orderSku.setImage(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
+            System.out.println("url-----------"+orderSku.getImage());
+            orderSkuService.InsertSku(listsku,order);
+        }
         return new OrderResponse(order.getId(),"1","1");
     }
 
@@ -323,6 +366,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         pager.setPages(pages);
         pager.setItems(list);
         return pager;
+    }
+
+    @Override
+    public void putOrder(String id) {
+        ordermapper.putOrder(id);
     }
 
 

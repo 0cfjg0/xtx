@@ -184,7 +184,8 @@ public class OrderController extends BaseController {
      */
     @PutMapping("/{id}/receipt")
     public R<OrderDetailVo> cannel(@PathVariable(name = "id") String id) {
-        var userId = getUserId();
+//        var userId = getUserId();
+        var userId = "1663375385531781122";
         var order = orderService.getById(id);
         if (!StrUtil.equals(userId, order.getMemberId())) {
             throw new BusinessException(ErrorMessageEnum.ORDER_NO_PRIVILEGE);
@@ -342,7 +343,8 @@ public class OrderController extends BaseController {
         // 获取用户地址信息
         //暂时注释,取消令牌校验
 //        String userId = getUserId();
-        String userId = id;
+        //暂时写死id
+        String userId = "1663375385531781122";
         System.out.println(userId);
         Order originOrder = orderService.getById(id);
         //暂时注释,取消令牌校验
@@ -420,14 +422,33 @@ public class OrderController extends BaseController {
         return R.ok(orderService.postOrder(orderSaveVo));
     }
 
+    //废弃
+//    //获取订单信息
+//    @GetMapping("/{id}")
+//    public R<OrderDetailVo> getOrder(@PathVariable String id){
+//        Order order = orderService.getOrder(id);
+//        Long countdown = getCountDown(order);
+//        //将order对象转成封装对象
+//        var orderRv = BeanUtil.toBean(order, OrderResponseVo.class);
+//        orderRv.setCountdown(countdown.intValue());
+//        return R.ok(orderRv);
+//    }
+
     //获取订单信息
     @GetMapping("/{id}")
-    public R<OrderResponseVo> getOrder(@PathVariable String id){
+    public R<OrderDetailVo> getOrder(@PathVariable String id){
         Order order = orderService.getOrder(id);
         Long countdown = getCountDown(order);
         //将order对象转成封装对象
-        var orderRv = BeanUtil.toBean(order, OrderResponseVo.class);
-        orderRv.setCountdown(countdown.intValue());
+        var orderRv = BeanUtil.toBean(order, OrderDetailVo.class);
+        orderRv.setCountdown(countdown);
+        String orderid = orderRv.getId();
+        List<OrderSkuVo> skus = ordermapper.getGoods(orderid);
+        for (int i = 0; i < skus.size(); i++) {
+            List<OrderSkuPropertyVo> properties = ordermapper.getProperties(skus.get(i).getId());
+            skus.get(i).setProperties(properties);
+        }
+        orderRv.setSkus(skus);
         return R.ok(orderRv);
     }
 
@@ -448,7 +469,7 @@ public class OrderController extends BaseController {
             //转类型
             var order = BeanUtil.toBean(list.get(i), Order.class);
             Long count = getCountDown(order);
-            if(count == -1){
+            if(count == -1 && list.get(i).getOrderState()==1){
                 ordermapper.updateOrder(orderId);
                 list.get(i).setOrderState(6);
             }
@@ -457,4 +478,11 @@ public class OrderController extends BaseController {
         paper = orderService.getOrderPage(id,orderState,page,pageSize);
         return R.ok(paper);
     }
+//
+//    //确认收货
+//    @PutMapping("/member/order/{id}/receipt")
+//    public R putOrder(@PathVariable String id){
+//        orderService.putOrder(id);
+//        return R.ok();
+//    }
 }

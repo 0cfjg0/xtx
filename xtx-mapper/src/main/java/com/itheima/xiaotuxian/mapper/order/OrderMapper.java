@@ -3,6 +3,8 @@ package com.itheima.xiaotuxian.mapper.order;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.itheima.xiaotuxian.entity.goods.GoodsSku;
 import com.itheima.xiaotuxian.entity.order.Order;
+import com.itheima.xiaotuxian.entity.order.OrderProperties;
+import com.itheima.xiaotuxian.entity.order.OrderSku;
 import com.itheima.xiaotuxian.vo.member.AddressSimpleVo;
 import com.itheima.xiaotuxian.vo.member.OrderPageVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuPropertyVo;
@@ -25,11 +27,14 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("select * from user_member_address where id = ${id}")
     List<AddressSimpleVo> getaddressById(String id);
 
-    @Select("select u.spu_id as 'id',g.price,u.sku_id\n" +
+    @Select("select u.spu_id as 'id',g.price,u.sku_id,u.quantity as 'count'\n" +
             "from user_member_cart u\n" +
             "         inner join goods_spu g on u.spu_id = g.id\n" +
             "where u.member_id = ${id};")
     List<OrderGoodsVo> getgoods(String id);
+
+    @Select("select property_main_name,property_value_name from goods_spu_property where spu_id = ${id};")
+    List<OrderProperties> getSpuProperties(String id);
 
     @Select("select sum(u.price)\n" +
             "from user_member_cart u\n" +
@@ -83,4 +88,12 @@ public interface OrderMapper extends BaseMapper<Order> {
     //更新属性
     @Update("Update order_order set order_state = 6 where id = ${id};")
     void updateOrder(String id);
+
+    //更新订单
+    @Update("Update order_order set order_state = 5 where id = {id}")
+    void putOrder(String id);
+
+    //插入订单对应商品
+    @Insert("insert into order_order_sku (order_id, sku_id, spu_id, image) VALUES (${orderId},${skuId},${spuId},'${image}')")
+    void insertSkus(OrderSku goodsSku);
 }
