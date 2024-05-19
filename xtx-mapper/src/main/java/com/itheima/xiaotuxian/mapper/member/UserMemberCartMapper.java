@@ -3,11 +3,9 @@ package com.itheima.xiaotuxian.mapper.member;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
+import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,7 +16,7 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
     Integer sumQuntity(@Param("userId") String userId);
 
     /**
-     * 新增购物车信息
+     * 1. 新增购物车信息
      * @param userMemberCart
      */
     @Insert("insert into" +
@@ -45,14 +43,19 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
 
 
     /**
-     * 获取用户购物车列表
+     * 2. 获取用户购物车列表
      * @param memberId
      */
     @Select("select * from user_member_cart where member_id = #{memberId}")
     List<UserMemberCart> getCarts(@Param("memberId") String memberId);
 
 
-
+    /**
+     * 3. 购物车全选/全不选
+     * @param cartSelectedVo
+     */
+    @Update("update user_member_cart set seleted = #{selected}")
+    void selectAllCarts(CartSelectedVo cartSelectedVo);
 
 
 }

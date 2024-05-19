@@ -5,6 +5,7 @@ package com.itheima.xiaotuxian.vo;
  * @Descripttion: 
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,10 +15,10 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class R<T> extends CartVo {
+public class R<T> {
     public static final String SUCCESS = "操作成功";
     public static final String ERROR = "操作失败";
-    // @JsonIgnore
+    //@JsonIgnore
     private String code;//返回状态码
     private String msg;//返回信息
     private T result;//返回数据

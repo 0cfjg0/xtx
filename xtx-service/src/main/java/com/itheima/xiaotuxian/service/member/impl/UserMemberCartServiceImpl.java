@@ -24,6 +24,7 @@ import com.itheima.xiaotuxian.util.HighLevelUtil;
 import com.itheima.xiaotuxian.vo.goods.goods.SkuSpecVo;
 import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
+import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 import org.apache.commons.lang3.BooleanUtils;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -114,7 +115,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     }
 
     /**
-     * 新增购物车信息
+     * 1. 新增购物车信息
      *
      * @param cartSaveVo
      * @return CartVo
@@ -152,13 +153,13 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         userMemberCartMapper.saveCart(userMemberCart);
 
         //4.调用上面的fillCart()方法,将cartVo对象响应到前端
-        CartVo cartVo = this.fillCart(userMemberCart, "1609504249362780161", "a123456asd");
+        CartVo cartVo = this.fillCart(userMemberCart, "1609504249362780161", "pc");
         System.out.println(cartVo);
         return cartVo;
     }
 
     /**
-     * 获取用户购物车列表
+     * 2. 获取用户购物车列表
      * //* @param memberId 用户Id
      *
      * @return 购物车列表
@@ -179,6 +180,18 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         }
         return list;
     }
+
+
+    /**
+     * 3. 购物车全选/全不选
+     *
+     * @param cartSelectedVo
+     */
+    @Override
+    public void selectAllCarts(CartSelectedVo cartSelectedVo) {
+        userMemberCartMapper.selectAllCarts(cartSelectedVo);
+    }
+
 
 
 }

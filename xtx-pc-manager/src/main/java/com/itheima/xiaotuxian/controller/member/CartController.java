@@ -29,7 +29,7 @@ public class CartController extends BaseController {
 
 
     /**
-     * 保存购物车商品信息,返回需要的的cartVo
+     * 1. 保存购物车商品信息,返回需要的的cartVo
      */
     @PostMapping()
     public R<CartVo>  saveCart(@RequestBody CartSaveVo cartSaveVo){
@@ -38,7 +38,7 @@ public class CartController extends BaseController {
     }
 
     /**
-     * 获取用户购物车列表
+     * 2. 获取用户购物车列表
      */
     @GetMapping()
     public R getCarts(){
@@ -46,6 +46,14 @@ public class CartController extends BaseController {
         return R.ok(list,R.SUCCESS);
     }
 
-
+    /**
+     * 3. 购物车全选/全不选
+     * @return
+     */
+    @PutMapping("/selected")
+    public R selectAllCarts(@RequestBody CartSelectedVo cartSelectedVo){
+        userMemberCartService.selectAllCarts(cartSelectedVo);
+        return R.ok();
+    }
 
 }

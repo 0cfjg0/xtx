@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserMemberCartService extends IService<UserMemberCart> {
 
     /**
-     * 保存购物车商品信息
+     * 1. 保存购物车商品信息
      *
      * @param cartSaveVo
      * @return 购物车商品信息
@@ -35,7 +35,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
 
 
     /**
-     * 获取用户购物车列表
+     * 2. 获取用户购物车列表
      *
      //* @param memberId 用户Id
      * @return 购物车列表
@@ -43,5 +43,9 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
     public List<CartVo> getCarts();
 
 
-
+    /**
+     * 3. 购物车全选/全不选
+     * @param cartSelectedVo
+     */
+    public void selectAllCarts(CartSelectedVo cartSelectedVo);
 }
