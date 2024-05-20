@@ -23,4 +23,7 @@ public interface BusinessAdService extends IService<BusinessAd> {
      * 活动的banner图，根据查询的渠道，广告位的位置和活动的id查询广告信息
      */
     List<BannerResultVo> findActivityBanner(Integer client, Integer distributionSiteActivity, String hashCode);
+
+
+    List<BannerResultVo> getbanner(Integer distributionSite);
 }

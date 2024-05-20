@@ -11,6 +11,7 @@ import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.enums.HomeGoodsEnum;
 import com.itheima.xiaotuxian.constant.statics.BusinessAdStatic;
 import com.itheima.xiaotuxian.controller.BaseController;
+import com.itheima.xiaotuxian.entity.business.BusinessAd;
 import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
 import com.itheima.xiaotuxian.entity.home.HomeHotRecommend;
 import com.itheima.xiaotuxian.entity.marketing.MarketingTopic;
@@ -52,17 +53,16 @@ import com.itheima.xiaotuxian.vo.search.SearchQueryVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.Banner;
+import org.springframework.web.bind.annotation.*;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.xml.transform.Result;
 
 /**
  * @author zsf
@@ -102,15 +102,22 @@ public class HomeController extends BaseController {
      *
      * @return 广告信息
      */
-
+    @GetMapping("/banner")
+    public R Getbanner(@RequestParam Integer distributionSite) {
+        List<BannerResultVo> getbanner = businessAdService.getbanner(distributionSite);
+        return R.ok(getbanner);
+    }
 
     /**
      * 首页-头部分类-PC
      *
      * @return 分类信息
      */
-
-
+    @GetMapping("/category/head")
+    public R getHead(){
+        List<FrontResultVo> list = frontService.getHead();
+        return R.ok(list);
+    }
 
 
     /**
@@ -118,8 +125,17 @@ public class HomeController extends BaseController {
      *
      * @return 新鲜好物
      */
-
-
+    @GetMapping("/new")
+//    public R getNewGoods() {
+//        System.out.println("----------------------------------------------13331-------------");
+//        List<GoodsItemResultVo> newGoods = goodsSpuService.getNewGoods();
+//        System.out.println("----------------------------------------------13332-------------");
+//        return R.ok(newGoods);
+//    }
+    public R<List<GoodsItemResultVo>> getGoodsItemResultVo(@RequestParam (name = "limit", defaultValue = "4") Integer limit){
+        List<GoodsItemResultVo> goodsListByPublishTime = getGoodsListByPublishTime(limit,"desc",false);
+        return R.ok(goodsListByPublishTime);
+    }
 
 
     /**
@@ -129,16 +145,11 @@ public class HomeController extends BaseController {
      */
 
 
-
-
     /**
      * 新鲜好物-APP
      *
      * @return 商品信息
      */
-
-
-
 
 
     /**
@@ -148,22 +159,17 @@ public class HomeController extends BaseController {
      * @return 人气推荐信息
      */
 
-
-
-
-
-
+    @GetMapping("/hot")
+    public R getHot() {
+        List<HotRecommendVo> list = hotRecommendService.getHot();
+        return R.ok(list);
+    }
     /**
      * 首页-人气推荐 小程序使用
      * 移动端的调用信息
      *
      * @return 人气推荐信息
      */
-
-
-
-
-
 
 
     /**
@@ -249,14 +255,11 @@ public class HomeController extends BaseController {
      *
      * @return 热门品牌
      */
-
-
-
-
-
-
-
-
+@GetMapping("/brand")
+public R getHotBrand(){
+    List<BrandSimpleVo> list = brandService.getHotBrand();
+    return R.ok(list);
+}
     /**
      * 首页-产品区块
      *
@@ -443,7 +446,7 @@ public class HomeController extends BaseController {
         IndexVo vo = new IndexVo();
         // banner
         Integer channel = getShowClient();
-     //   vo.setImageBanners(businessAdService.findBanner(channel, BusinessAdStatic.DISTRIBUTION_SITE_INDEX));
+        //   vo.setImageBanners(businessAdService.findBanner(channel, BusinessAdStatic.DISTRIBUTION_SITE_INDEX));
         // 商品分类
         List<FrontResultVo> frontResultVos = frontService.findCategory();
         //update by lbc 适应app显示两页的需求 显示14个，随机复制一部分，返回给前端
@@ -452,7 +455,7 @@ public class HomeController extends BaseController {
         // }
         vo.setCategoryGrids(frontResultVos);
         // 商品分类
-       // vo.setCategoryBanners(frontService.findCategoryAndGoods(8, getShowClient()));
+        // vo.setCategoryBanners(frontService.findCategoryAndGoods(8, getShowClient()));
         // 新鲜好物
         vo.setFreshGoods(getGoodsListByPublishTime(4, "desc", false));
         // 品牌

@@ -17,6 +17,7 @@ import com.itheima.xiaotuxian.entity.classification.ClassificationFront;
 import com.itheima.xiaotuxian.entity.classification.ClassificationFrontRelation;
 import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
 import com.itheima.xiaotuxian.exception.BusinessException;
+import com.itheima.xiaotuxian.mapper.classification.ClassificationBackendMapper;
 import com.itheima.xiaotuxian.mapper.classification.ClassificationFrontMapper;
 import com.itheima.xiaotuxian.service.classification.ClassificationBackendService;
 import com.itheima.xiaotuxian.service.classification.ClassificationFrontRelationService;
@@ -41,6 +42,7 @@ import com.itheima.xiaotuxian.vo.classification.FrontSimpleVo;
 import com.itheima.xiaotuxian.vo.classification.FrontVo;
 import com.itheima.xiaotuxian.vo.classification.response.FrontResultVo;
 import com.itheima.xiaotuxian.vo.goods.brand.BrandSimpleVo;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo;
 import com.itheima.xiaotuxian.vo.goods.goods.GoodsQueryPageVo;
 import com.itheima.xiaotuxian.vo.material.PictureSimpleVo;
 import com.itheima.xiaotuxian.vo.property.PropertyGroupSimpleVo;
@@ -337,6 +339,37 @@ public class ClassificationFrontServiceImpl extends ServiceImpl<ClassificationFr
                 });
         frontDetailNewVo.setRelations(relationVos);
         return frontDetailNewVo;
+    }
+
+    @Autowired
+    private ClassificationBackendMapper backendMapper;
+
+
+    @Override
+    public List<FrontResultVo> getHead() {
+        List<FrontResultVo> categoryParents = backendMapper.getCategoryParents();
+        for (int i = 0; i < categoryParents.size(); i++) {
+            FrontResultVo parent = categoryParents.get(i);
+            String pid = parent.getId();
+//拿到所有的二级类目
+            List<FrontResultVo> son = backendMapper.getCategoryOneFindTwo(pid);
+            parent.setChildren(son);
+//拿到所有的某个1级类日下的商品(前9个)
+            List<GoodsItemResultVo> goods = backendMapper.getCategoryGoodsForOneId(pid);
+            String cnt1 = null;
+            String cnt2 = null;
+            List<GoodsItemResultVo> newgoods = new ArrayList<>();
+            for (int j = 0; j < goods.size(); j++) {
+                GoodsItemResultVo goodsOfOne = goods.get(j);
+                cnt2 = goodsOfOne.getId();
+                if (!cnt2.equals(cnt1)) {
+                    cnt1 = cnt2;
+                    newgoods.add(goodsOfOne);
+                }
+            }
+            parent.setGoods(newgoods);
+        }
+        return categoryParents;
     }
 
 

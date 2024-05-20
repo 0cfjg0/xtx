@@ -2,6 +2,7 @@ package com.itheima.xiaotuxian.service.home;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.home.HomeHotRecommend;
+import com.itheima.xiaotuxian.vo.home.response.HotRecommendVo;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface HomeHotRecommendService extends IService<HomeHotRecommend> {
      * @return
      */
     List<HomeHotRecommend> getList(Integer client);
+
+    List<HotRecommendVo> getHot();
 }

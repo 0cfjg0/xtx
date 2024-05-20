@@ -5,10 +5,14 @@ import com.itheima.xiaotuxian.entity.home.HomeHotRecommend;
 import com.itheima.xiaotuxian.mapper.home.HomeHotRecommendMapper;
 import com.itheima.xiaotuxian.service.home.HomeHotRecommendService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.itheima.xiaotuxian.vo.home.response.HotRecommendVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 /**
  * <p>
@@ -21,11 +25,19 @@ import java.util.List;
 @Service
 public class HomeHotRecommendServiceImpl extends ServiceImpl<HomeHotRecommendMapper, HomeHotRecommend> implements HomeHotRecommendService {
 
+    @Autowired
+    private HomeHotRecommendMapper homeHotRecommendMapper;
     @Override
     public List<HomeHotRecommend> getList(Integer client) {
         var list= this.baseMapper.selectList(Wrappers.<HomeHotRecommend>lambdaQuery()
                 .eq(HomeHotRecommend::getDistributionChannel,client)
                 .orderByAsc(HomeHotRecommend::getType));
         return list;
+    }
+
+    @Override
+    public List<HotRecommendVo> getHot() {
+        List<HotRecommendVo> hot = homeHotRecommendMapper.getHot();
+        return hot;
     }
 }
