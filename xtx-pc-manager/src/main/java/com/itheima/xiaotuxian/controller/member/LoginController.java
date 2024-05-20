@@ -98,8 +98,10 @@ public class LoginController {
         if (!Validator.isMobile(mobile)) {
             throw new BusinessException(ErrorMessageEnum.MEMBER_MOBILE_FORMAT_INVALID);
         }
-       userMemberService.count(Wrappers.<UserMember>lambdaQuery().eq(UserMember::getMobile, mobile));
-
+        int count = userMemberService.count(Wrappers.<UserMember>lambdaQuery().eq(UserMember::getMobile, mobile));
+//if (){
+//
+//}
         userMemberService.sendLoginCode(mobile);
         return R.ok();
     }

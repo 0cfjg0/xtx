@@ -37,21 +37,23 @@ mybatis-plus:
 tmp:
   file-directory: /Users/cengshaofeng/Desktop/xiaotuxian/upload
 sms:
-  region--id: cn-hangzhou
-  accessKey: LTAI4FqsEN4TvQo4859WFfPr
-  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
+  region--id: cn-shanghai
+#  accessKey: LTAI4FqsEN4TvQo4859WFfPr
+#  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
+  accessKey: LTAI5tQRsSQYsKc2jRP3Zzh2
+  secret: 4ICBXpb2lLI9h6gWzGugCn0V9c4jEv
   register:
-    sign: 传智播客
-    template-code: SMS_173696218
+    sign: 阿里云短信测试
+    template-code: SMS_154950909
   login:
-    sign: 传智播客
-    template-code: SMS_173696220
+    sign: 阿里云短信测试
+    template-code: SMS_154950909
   reset:
-    sign: 传智播客
-    template-code: SMS_173696217
+    sign: 阿里云短信测试
+    template-code: SMS_154950909
   social:
-    sign: 传智播客
-    template-code: SMS_173696221
+    sign: 阿里云短信测试
+    template-code: SMS_154950909
 account:
   avatar: http://yjy-xiaotuxian-dev.oss-cn-beijing.aliyuncs.com/picture/2021-04-06/db628d42-88a7-46e7-abb8-659448c33081.png
 
