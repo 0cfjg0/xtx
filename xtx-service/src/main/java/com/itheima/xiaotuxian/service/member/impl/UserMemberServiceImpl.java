@@ -1,15 +1,10 @@
 package com.itheima.xiaotuxian.service.member.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.lang.UUID;
-import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
-import com.alipay.api.domain.AlipayCommerceEducateStudentIdentityQueryModel;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
-import com.itheima.xiaotuxian.constant.statics.CommonStatic;
 import com.itheima.xiaotuxian.constant.statics.RedisKeyStatic;
 import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.entity.member.UserMemberOpenInfo;
@@ -21,17 +16,14 @@ import com.itheima.xiaotuxian.util.JwtUtil;
 import com.itheima.xiaotuxian.util.SmsUtil;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
 import com.itheima.xiaotuxian.vo.member.request.LoginVo;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -55,6 +47,8 @@ public class UserMemberServiceImpl extends ServiceImpl<UserMemberMapper, UserMem
     RedisTemplate<String, String> redisTemplate;
     @Autowired
     private UserMemberOpenInfoMapper userMemberOpenInfoMapper;
+    @Autowired
+    private UserMemberMapper userMemberMapper;
 
     @Value("${sms.register.sign:}")
     private String registerSign;
@@ -89,6 +83,36 @@ public class UserMemberServiceImpl extends ServiceImpl<UserMemberMapper, UserMem
                 .forEach(noPass -> {
                     throw new BusinessException(ErrorMessageEnum.MEMBER_SEND_MESSAGE_FAILED);
                 });
+        return true;
+    }
+    @Override
+    public Boolean sendLoginCode(String mobile) {
+        Stream.of(sendSms(KEY_LOGIN_CODE, mobile, loginTemplateCode, loginSign))
+                .filter(Boolean.FALSE::equals)
+                .forEach(noPass -> {
+                    throw new BusinessException(ErrorMessageEnum.MEMBER_CODE_SEND);
+                });
+        return true;
+    }
+//注册
+    @Override
+    public Boolean register(RegisterVo vo) {
+       UserMember userMember=new UserMember();
+//        UUID uniqueID = UUID.randomUUID();
+//        String s = uniqueID.toString();
+//        String uniqueID = UUID.randomUUID().toString();
+//        Random r=new Random();
+//        int n = r.nextInt(99999999);
+//
+//        userMember.setId("1609"+n);
+        System.out.println("aaaaaaaaaaaaaaaaaaaaa"+userMember.getId());
+        userMember.setCreator("1");
+        userMember.setMobile(vo.getMobile());
+        userMember.setAccount(vo.getAccount());
+        userMember.setPassword(vo.getPassword());
+
+        userMemberMapper.register(userMember);
+
         return true;
     }
 
@@ -228,15 +252,15 @@ public class UserMemberServiceImpl extends ServiceImpl<UserMemberMapper, UserMem
     private Boolean sendSms(String keyPrefix, String mobile, String templateCode, String sign) {
         var key = keyPrefix + mobile;
         checkRedisKey(key, Boolean.TRUE::equals, ErrorMessageEnum.MEMBER_CODE_SEND);
-//        var code = new Random().nextInt(899999) + 100000;
-        var code = testCode;
+        var code = new Random().nextInt(899999) + 100000;
+//        var code = testCode;
         redisTemplate.opsForValue().set(key, code + "", Duration.of(1, ChronoUnit.MINUTES));
         /**
          * TODO 为了防止后期大量学生调用短信接口产生费用，暂时注释掉此处代码
          * 短信功能可以使用
          */
-        //        return smsUtil.sendSms(mobile, templateCode, String.format("{'code':%s}", code), sign);
-        return true;
+                return smsUtil.sendSms(mobile, templateCode, String.format("{'code':%s}", code), sign);
+//        return true;
     }
 
     /**

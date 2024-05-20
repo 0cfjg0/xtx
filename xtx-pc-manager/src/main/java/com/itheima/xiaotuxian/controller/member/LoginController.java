@@ -93,12 +93,16 @@ public class LoginController {
      * @param mobile 手机号
      * @return 验证码
      */
-//    @PostMapping("/{mobile}")
-//    public R<String> code(@PathVariable String mobile, HttpSession session){
-//       String ss= userMemberService.code(mobile,session);
-//
-//        return R.ok(ss);
-//    }
+    @GetMapping("/code")
+    public R<String> code(@RequestParam(name = "mobile")  String mobile) {
+        if (!Validator.isMobile(mobile)) {
+            throw new BusinessException(ErrorMessageEnum.MEMBER_MOBILE_FORMAT_INVALID);
+        }
+       userMemberService.count(Wrappers.<UserMember>lambdaQuery().eq(UserMember::getMobile, mobile));
+
+        userMemberService.sendLoginCode(mobile);
+        return R.ok();
+    }
 
     /**
      * 手机验证码登录

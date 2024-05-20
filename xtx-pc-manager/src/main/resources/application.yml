@@ -37,7 +37,7 @@ mybatis-plus:
 tmp:
   file-directory: /Users/cengshaofeng/Desktop/xiaotuxian/upload
 sms:
-  region-id: cn-hangzhou
+  region--id: cn-hangzhou
   accessKey: LTAI4FqsEN4TvQo4859WFfPr
   secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
   register:

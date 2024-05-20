@@ -23,10 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cn.hutool.core.lang.Validator;
 import lombok.extern.slf4j.Slf4j;
+
 /*
  * @author: lbc
  * @Date: 2023-06-13 20:57:28
- * @Descripttion: 
+ * @Descripttion:
  */
 @Slf4j
 @RestController
@@ -45,9 +46,9 @@ public class RegisterController {
     @GetMapping("/check")
     public R<CheckResultVo> accountCheck(@RequestParam(name = "account") String account) {
         int count = userMemberService.count(Wrappers.<UserMember>lambdaQuery()
-                                                    .eq(UserMember::getAccount, account)
-                                                    .or()
-                                                    .eq(UserMember::getMobile, account));
+                .eq(UserMember::getAccount, account)
+                .or()
+                .eq(UserMember::getMobile, account));
         var resultVo = new CheckResultVo(count > 0);
         return R.ok(resultVo);
     }
@@ -59,11 +60,13 @@ public class RegisterController {
      * @return 登录信息
      */
     @PostMapping
-
-
-
-
-
+    public R<String> register(@RequestBody RegisterVo vo) {
+//        if (Boolean.FALSE.equals(userMemberService.checkRegisterCode(vo.getMobile(), vo.getCode()))) {
+//            throw new BusinessException(ErrorMessageEnum.MEMBER_CODE_INVALID);
+//        }
+      userMemberService.register(vo);
+        return R.ok();
+    }
 
 
     /**

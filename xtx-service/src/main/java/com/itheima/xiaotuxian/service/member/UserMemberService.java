@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
 import com.itheima.xiaotuxian.vo.member.request.LoginVo;
+import com.itheima.xiaotuxian.vo.member.response.LoginResultVo;
 
 import javax.servlet.http.HttpSession;
 
@@ -123,5 +124,9 @@ public interface UserMemberService extends IService<UserMember> {
 
 
     UserMember select(LoginVo vo);
+
+    Boolean sendLoginCode(String mobile);
+
+    Boolean register(RegisterVo vo);
 
 }
