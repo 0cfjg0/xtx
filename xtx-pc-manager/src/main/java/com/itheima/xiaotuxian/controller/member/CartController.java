@@ -56,6 +56,13 @@ public class CartController extends BaseController {
         return R.ok();
     }
 
+    /**
+     * 修改数据库
+     *
+     * @param cartSaveVo
+     * @param skuId
+     * @return
+     */
     @PutMapping("/{skuId}")
     public R updateUserCart(@RequestBody CartSaveVo cartSaveVo, @PathVariable String skuId) {
         cartSaveVo.setSkuId(skuId);
@@ -74,5 +81,17 @@ public class CartController extends BaseController {
         System.out.println("---------------" + batchDeleteCartVo);
         cartService.deleteUserCart(batchDeleteCartVo);
         return R.ok();
+    }
+
+    /**
+     * 保存
+     *
+     * @param cartSaveVo
+     * @return
+     */
+    @PostMapping()
+    public R<CartVo> saveCart(@RequestBody CartSaveVo cartSaveVo) {
+        CartVo cartVo = cartService.saveCart(cartSaveVo);
+        return R.ok(cartVo, R.SUCCESS);
     }
 }

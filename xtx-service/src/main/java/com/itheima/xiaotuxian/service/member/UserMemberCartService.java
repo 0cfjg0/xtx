@@ -16,7 +16,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * @param saveVo 商品信息
      * @return 购物车商品信息
      */
-
+    public CartVo saveCart(CartSaveVo cartSaveVo);
 
     /**
      * 批量删除用户购物车商品
@@ -25,7 +25,13 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * @param memberId 用户Id
      * @return 操作结果
      */
-
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo);
 
     /**
      * 获取用户购物车列表
@@ -57,11 +63,5 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      */
     CartVo updateUserCart(CartSaveVo cartSaveVo);
 
-    /**
-     * 清空/删除购物车商品
-     *
-     * @param batchDeleteCartVo
-     * @return
-     */
-    void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo);
+
 }

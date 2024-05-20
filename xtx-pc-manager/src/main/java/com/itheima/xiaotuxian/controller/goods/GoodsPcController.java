@@ -83,6 +83,7 @@ public class GoodsPcController extends BaseController {
     private String hotByDayJson;
     @Value("${test.evaluationInfoJson}")
     private String evaluationInfoJson;
+
     /**
      * 同类推荐(也支持猜你喜欢)
      *
@@ -94,8 +95,8 @@ public class GoodsPcController extends BaseController {
     public R<List<GoodsItemResultVo>> getRelevant(@RequestParam(name = "id", required = false) String id
             , @RequestParam(name = "limit", defaultValue = "4") Integer limit) {
         var page = 1;
-        var pageSize = limit;      
-        return R.ok(searchGoodsService.findAllGoodsWithPublishTime(page,pageSize, "desc", false)
+        var pageSize = limit;
+        return R.ok(searchGoodsService.findAllGoodsWithPublishTime(page, pageSize, "desc", false)
                 .stream().map(esGoods -> ConvertUtil.convertHomeGoods(esGoods, getClient())).collect(Collectors.toList()));
     }
 
@@ -125,7 +126,7 @@ public class GoodsPcController extends BaseController {
         //出售中或者仓库中的，审核通过的，编辑状态是提交的商品，且库存大于0的才是有效的商品
         Optional.ofNullable(goodsSpuService.getById(sku.getSpuId())).ifPresent(spu -> {
             goodsStateValid.set((GoodsStatic.STATE_STORING == spu.getState()
-                                    || GoodsStatic.STATE_SELLING == spu.getState())
+                    || GoodsStatic.STATE_SELLING == spu.getState())
                     && GoodsStatic.AUDIT_STATE_PASS == spu.getAuditState()
                     && GoodsStatic.EDIT_STATE_SUBMIT == spu.getEditState());
         });
@@ -145,7 +146,7 @@ public class GoodsPcController extends BaseController {
         if (sku == null) {
             throw new BusinessException(ErrorMessageEnum.OBJECT_DOES_NOT_EXIST);
         }
-        return R.ok(goodsService.findGoodsSpecById(sku.getSpuId(),getClient()));
+        return R.ok(goodsService.findGoodsSpecById(sku.getSpuId(), getClient()));
     }
 
     /**
@@ -195,6 +196,8 @@ public class GoodsPcController extends BaseController {
      */
     @GetMapping
     public R<SaleGoodsDetailVo> getGoodsDetails(@RequestParam(name = "id") String id) {
+//    @GetMapping("/{id}")
+//    public R<SaleGoodsDetailVo> getGoodsDetails(@PathVariable String id) {
         var result = goodsService.findSaleGoodsDetailsById(id, getClient(), Boolean.TRUE.equals(hasToken()) ? getUserId() : null);
         // 处理推荐数据
         if (CommonStatic.REQUEST_CLIENT_APP.equals(getClient())) {
@@ -238,16 +241,17 @@ public class GoodsPcController extends BaseController {
      */
     @GetMapping("/app")
     public R<SaleGoodsAppDetailVo> getGoodsAppDetails(@RequestParam(name = "id") String id) {
-         var detailResult = new SaleGoodsDetailVo();
+        var detailResult = new SaleGoodsDetailVo();
         try {
             detailResult = goodsService.findSaleGoodsDetailsById(id, getClient(), Boolean.TRUE.equals(hasToken()) ? getUserId() : null);
         } catch (Exception e) {
             detailResult = goodsService.findSaleGoodsDetailsById(id, getClient(), null);
-            
+
         }
-        var result = BeanUtil.toBean(detailResult,SaleGoodsAppDetailVo.class);
+        var result = BeanUtil.toBean(detailResult, SaleGoodsAppDetailVo.class);
         // 2023年11月5日17:24:22 提出和结算页返回的地址信息不同，所以在此特殊处理下
-        Optional.ofNullable(result.getUserAddresses()).ifPresentOrElse(address->{}, ()->{
+        Optional.ofNullable(result.getUserAddresses()).ifPresentOrElse(address -> {
+        }, () -> {
             result.setUserAddresses(new ArrayList<>());
         });
         // 处理推荐数据
@@ -264,7 +268,8 @@ public class GoodsPcController extends BaseController {
         // 处理评价信息 TODO 暂时使用配置文件的json数据，方便录制视频
         var evaluateQueryVo = new EvaluateQueryVo();
         evaluateQueryVo.setSpuId(id);
-        OrderEvaluateVo evaluation = JSON.parseObject(evaluationInfoJson, new TypeReference<OrderEvaluateVo>(){});
+        OrderEvaluateVo evaluation = JSON.parseObject(evaluationInfoJson, new TypeReference<OrderEvaluateVo>() {
+        });
 
         result.setEvaluationInfo(evaluation);
 
@@ -275,7 +280,7 @@ public class GoodsPcController extends BaseController {
 
         // List<GoodsItemResultVo> similarList = JSON.parseObject(similarProductsJson, new TypeReference<ArrayList<GoodsItemResultVo>>(){});
         // result.setSimilarProducts(similarList);
-       result.setSimilarProducts(searchGoodsService.getHotGoods(similarQueryVo).stream().map(esGoods -> ConvertUtil.convertHomeGoods(esGoods, getClient())).collect(Collectors.toList()));
+        result.setSimilarProducts(searchGoodsService.getHotGoods(similarQueryVo).stream().map(esGoods -> ConvertUtil.convertHomeGoods(esGoods, getClient())).collect(Collectors.toList()));
         // 处理24小时热销 TODO 暂时使用配置文件的json数据
         var hotByDayQueryVo = new HotGoodsQueryVo();
         hotByDayQueryVo.setLimit(3);

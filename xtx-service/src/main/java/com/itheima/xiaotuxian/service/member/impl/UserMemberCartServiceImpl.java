@@ -197,6 +197,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Override
     public CartVo updateUserCart(CartSaveVo cartSaveVo) {
         UserMemberCart cart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
+        System.out.println("------------" + cartSaveVo);
         cart.setQuantity(cartSaveVo.getCount());
         cart.setSeleted(cartSaveVo.getSelected());
         int i = userMemberCartMapper.updateById(cart);
@@ -222,8 +223,48 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     /**
      * 新增购物车信息
      *
-     * @param saveVo
+     * @param
      * @return
      */
+    @Override
+    @Transactional
+    public CartVo saveCart(CartSaveVo cartSaveVo) {
+        //1.创建 用户购物车 对象
+        UserMemberCart userMemberCart = null;
+        try {
+            userMemberCart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
+            System.out.println("-------------------" + userMemberCart);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        if (userMemberCart != null) {
+            System.out.println("-------------------+7894564123");
+            userMemberCart.setQuantity(userMemberCart.getQuantity() + cartSaveVo.getCount());
+            updateById(userMemberCart);
+        } else {
+            System.out.println("-------------------9963.5554441");
+            //2.补全属性
+            userMemberCart = new UserMemberCart();
+            userMemberCart.setCreateTime(LocalDateTime.now());
+            userMemberCart.setMemberId(memberId);
 
+            userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
+            userMemberCart.setQuantity(cartSaveVo.getCount());
+            userMemberCart.setSeleted(cartSaveVo.getSelected());
+            //从数据库找到的数据
+            //通过sku_id在goods_sku数据库表里查到squ_id
+            GoodsSku goodsSku = goodsSkuMapper.selectById(cartSaveVo.getSkuId());
+            System.out.println("goodsSku = " + goodsSku);
+            userMemberCart.setSpuId(goodsSku.getSpuId());
+            //通过squ_id在goods_squ数据库表里查到price
+            GoodsSpu goodsSpu = goodsSpuMapper.selectById(goodsSku.getSpuId());
+            userMemberCart.setPrice(goodsSpu.getPrice());
+            //3.保存 购物车信息 到 购物车表中
+            userMemberCartMapper.insert(userMemberCart);
+        }
+        //4.调用上面的fillCart()方法,将cartVo对象响应到前端
+        CartVo cartVo = this.fillCart(userMemberCart, memberId, client);
+        System.out.println(cartVo);
+        return cartVo;
+    }
 }
