@@ -29,16 +29,23 @@ public class OrderSkuServiceImpl extends ServiceImpl<OrderSkuMapper, OrderSku> i
     }
 
     @Override
-    public void InsertSku(List<GoodsSku> listsku, Order order) {
+    public void InsertSku(List<OrderSku> list) {
         //insert对应商品
-        for (GoodsSku goodsSku : listsku) {
-            OrderSku orderSku = new OrderSku();
-            orderSku.setOrderId(order.getId());
-            orderSku.setSpuId(goodsSku.getSpuId());
-            orderSku.setSkuId(goodsSku.getId());
-            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(orderSku.getSpuId());
-            orderSku.setImage(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
-            System.out.println("url-----------"+orderSku.getImage());
+//        for (GoodsSku goodsSku : listsku) {
+//            OrderSku orderSku = new OrderSku();
+//            orderSku.setOrderId(order.getId());
+//            orderSku.setSpuId(goodsSku.getSpuId());
+//            orderSku.setSkuId(goodsSku.getId());
+//            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(orderSku.getSpuId());
+//            orderSku.setImage(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
+//            //设置数量
+//            orderSku.setCurPrice();
+//            //设置价格
+//            orderSku.setQuantity();
+//            System.out.println("url-----------"+orderSku.getImage());
+//            super.save(orderSku);
+//        }
+        for (OrderSku orderSku : list) {
             super.save(orderSku);
         }
     }

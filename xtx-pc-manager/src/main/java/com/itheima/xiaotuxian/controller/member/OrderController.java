@@ -226,10 +226,14 @@ public class OrderController extends BaseController {
     /**
      * 删除订单
      *
-     * @param deleteVo 待操作信息
+     * @param
      * @return 操作结果
      */
-
+    @PutMapping("/cancel/{id}")
+    public R cancelOrder(@PathVariable String id){
+        orderService.cancelOrder(id);
+        return R.ok();
+    }
 
 
 
@@ -476,6 +480,9 @@ public class OrderController extends BaseController {
             list.get(i).setCountdown(count);
         }
         paper = orderService.getOrderPage(id,orderState,page,pageSize);
+        for (OrderPageVo item : paper.getItems()) {
+            item.setCountdown(getCountDown(BeanUtil.toBean(item, Order.class)));
+        }
         return R.ok(paper);
     }
 //

@@ -5,6 +5,7 @@ import com.itheima.xiaotuxian.entity.goods.GoodsSku;
 import com.itheima.xiaotuxian.entity.order.Order;
 import com.itheima.xiaotuxian.entity.order.OrderProperties;
 import com.itheima.xiaotuxian.entity.order.OrderSku;
+import com.itheima.xiaotuxian.entity.order.OrderSkuProperty;
 import com.itheima.xiaotuxian.vo.member.AddressSimpleVo;
 import com.itheima.xiaotuxian.vo.member.OrderPageVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuPropertyVo;
@@ -85,6 +86,9 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("select gsp.property_main_name,gsp.property_value_name from goods_sku_property_value gsp inner join order_order_sku_property oosp on gsp.sku_id = oosp.order_sku_id where oosp.order_id = ${id};")
     List<OrderSkuPropertyVo> getProperties(String id);
 
+//    @Select("select gsp.property_main_name,gsp.property_value_name from goods_sku_property_value gsp inner join goods_sku g on gsp.sku_id = g.id where g.id = ${id};")
+//    List<OrderSkuPropertyVo> getProperties(String id);
+
     //更新属性
     @Update("Update order_order set order_state = 6 where id = ${id};")
     void updateOrder(String id);
@@ -96,4 +100,20 @@ public interface OrderMapper extends BaseMapper<Order> {
     //插入订单对应商品
     @Insert("insert into order_order_sku (order_id, sku_id, spu_id, image) VALUES (${orderId},${skuId},${spuId},'${image}')")
     void insertSkus(OrderSku goodsSku);
+
+    //修改订单状态为已完成
+    @Update("Update order_order set order_state = 5 where id = ${id};")
+    void setOrderComplete(String id);
+
+    //添加oosp中间表数据
+    @Select("Insert into order_order_sku_property oosp (order_sku_id,order_id)")
+    void InsertOosp(OrderSkuProperty orderSkuProperty);
+
+    //取消订单
+    @Update("Update order_order set order_state = 6 where id = ${id}")
+    void cancelOrder(String id);
+
+    //查询商品名字
+    @Select("select name from order_order_sku where sku_id = ${id}")
+    List<String> getName(String id);
 }

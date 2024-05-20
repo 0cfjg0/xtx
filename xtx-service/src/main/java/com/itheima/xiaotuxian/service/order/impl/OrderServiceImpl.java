@@ -239,11 +239,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public OrderPreSummaryVo getsummary(String id) {
         OrderPreSummaryVo orderPreSummaryVo = new OrderPreSummaryVo();
-        orderPreSummaryVo.setTotalPrice(ordermapper.getSum(id));
+        List<OrderGoodsVo> list = ordermapper.getgoods(id);
+        BigDecimal sum = BigDecimal.valueOf(0);
+        for (OrderGoodsVo orderGoodsVo : list) {
+            sum = sum.add(orderGoodsVo.getPrice().multiply(BigDecimal.valueOf(orderGoodsVo.getCount())));
+        }
+        orderPreSummaryVo.setTotalPrice(sum);
         //写死邮费
         orderPreSummaryVo.setPostFee(BigDecimal.valueOf(6));
         Integer count = 0;
-        List<OrderGoodsVo> list = ordermapper.getgoods(id);
         for (int i = 0; i < list.size(); i++) {
             count += list.get(i).getCount();
         }
@@ -264,13 +268,32 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setPayChannel(orderSaveVo.getPayChannel());
         order.setPayLatestTime(LocalDateTime.now().minusMinutes(-15));
         List<GoodsSku> listsku = new ArrayList<>();
+        List<OrderSku> listOrder = new ArrayList<>();
         BigDecimal sum = BigDecimal.valueOf(0);
+//        for (CartVo good : orderSaveVo.getGoods()) {
+//            for (Integer i = 0; i < good.getCount(); i++) {
+//                listsku.add(ordermapper.getGoodBySku(good.getSkuId()));
+//            }
+//        }
+        //添加商品列表
         for (CartVo good : orderSaveVo.getGoods()) {
-            listsku.add(ordermapper.getGoodBySku(good.getSkuId()));
+            GoodsSku sku = ordermapper.getGoodBySku(good.getSkuId());
+            OrderSku temp = new OrderSku();
+            temp.setName(ordermapper.getName(sku.getId()).get(0));
+            temp.setSpuId(sku.getSpuId());
+            temp.setSkuId(sku.getId());
+            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(sku.getSpuId());
+            temp.setImage(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
+            temp.setQuantity(good.getCount());
+            temp.setCurPrice(sku.getSellingPrice());
+            //实付
+            temp.setRealPay(temp.getCurPrice().multiply(BigDecimal.valueOf(temp.getQuantity())));
+            listOrder.add(temp);
+            sum = sum.add(temp.getCurPrice().multiply(BigDecimal.valueOf(temp.getQuantity())));
         }
-        for (GoodsSku goodsSku : listsku) {
-            sum = sum.add(goodsSku.getSellingPrice());
-        }
+//        for (GoodsSku goodsSku : listsku) {
+//            sum = sum.add(goodsSku.getSellingPrice());
+//        }
         order.setPayMoney(sum);
         //获取地址
         List<AddressSimpleVo> list = ordermapper.getaddressById(orderSaveVo.getAddressId());
@@ -287,16 +310,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         System.out.println(order);
         super.save(order);
         //insert对应商品
-        for (GoodsSku goodsSku : listsku) {
-            OrderSku orderSku = new OrderSku();
+        for (OrderSku orderSku : listOrder) {
             orderSku.setOrderId(order.getId());
-            orderSku.setSpuId(goodsSku.getSpuId());
-            orderSku.setSkuId(goodsSku.getId());
-            GoodsDetailVo goodsDetailVo = goodsService.findGoodsById(orderSku.getSpuId());
-            orderSku.setImage(goodsDetailVo.getMainPictures().getPc().get(0).getUrl());
-            System.out.println("url-----------"+orderSku.getImage());
-            orderSkuService.InsertSku(listsku,order);
+            OrderSkuProperty osp = new OrderSkuProperty();
+            osp.setOrderId(order.getId());
+            osp.setOrderSkuId(orderSku.getSkuId());
+            osp.setOrderSpuId(orderSku.getSpuId());
+            osp.setCreateTime(LocalDateTime.now());
+            orderSkuPropertyService.insertOosp(osp);
         }
+        orderSkuService.InsertSku(listOrder);
         return new OrderResponse(order.getId(),"1","1");
     }
 
@@ -371,6 +394,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Override
     public void putOrder(String id) {
         ordermapper.putOrder(id);
+    }
+
+    @Override
+    public void setOrderComplete(String orderId) {
+        ordermapper.setOrderComplete(orderId);
+    }
+
+    @Override
+    public void cancelOrder(String id) {
+        ordermapper.cancelOrder(id);
     }
 
 

@@ -70,4 +70,8 @@ public interface OrderService extends IService<Order> {
     Pager<OrderPageVo> getOrderPageAll(String id, Integer page, Integer pageSize);
 
     void putOrder(String id);
+
+    void setOrderComplete(String orderId);
+
+    void cancelOrder(String id);
 }

@@ -43,4 +43,8 @@ public class OrderSkuPropertyServiceImpl extends ServiceImpl<OrderSkuPropertyMap
 
         return sbAttrsText.toString();
     }
+
+    public void insertOosp(OrderSkuProperty orderSkuProperty){
+        super.save(orderSkuProperty);
+    }
 }

@@ -10,5 +10,5 @@ import java.util.List;
 public interface OrderSkuService extends IService<OrderSku> {
     Integer countOrderBySpuId(String spuId);
 
-    void InsertSku(List<GoodsSku> listsku, Order order);
+    void InsertSku(List<OrderSku> list);
 }

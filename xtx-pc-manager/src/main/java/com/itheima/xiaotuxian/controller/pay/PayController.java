@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -74,8 +75,8 @@ public class PayController extends BaseController {
         //调用支付宝的支付功能
         BigDecimal money = orderService.getOrder(orderId).getPayMoney();
         System.out.println(aliPayReturnUrl);
-        aliPayReturnUrl = "http://127.0.0.1:5173/paycallback?payResult=true&orderId=";
-        aliPayReturnUrl += orderId;
+//        aliPayReturnUrl = "http://127.0.0.1:5173/paycallback?payResult=true&orderId=";
+//        aliPayReturnUrl += orderId;
         String result = sendRequestToAlipay(orderId, money.floatValue(), "xtx_cfjg");
         return result;
     }
@@ -91,7 +92,7 @@ public class PayController extends BaseController {
         System.out.println(aliPayNotifyUrl);
         alipayRequest.setNotifyUrl(aliPayNotifyUrl);
 
-        //商品描述（可空）
+        //商品描述
         String body = "";
         alipayRequest.setBizContent("{\"out_trade_no\":\"" + outTradeNo + "\","
                 + "\"total_amount\":\"" + totalAmount + "\","
@@ -104,10 +105,59 @@ public class PayController extends BaseController {
         return result;
     }
 
-    @GetMapping("")
+    @ResponseBody
+    @RequestMapping("/returnUrl")
+    public void returnUrlMethod(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws AlipayApiException, IOException {
+        System.out.println("=================================同步回调=====================================");
 
-    @PostMapping("/notifyUrl")
-    public void returnUrlMethod(HttpServletRequest request, HttpSession session, Model model) throws AlipayApiException, UnsupportedEncodingException, UnsupportedEncodingException {
+        // 获取支付宝GET过来反馈信息
+        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String[]> requestParams = request.getParameterMap();
+        for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            String[] values = (String[]) requestParams.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
+            }
+            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+            params.put(name, valueStr);
+        }
+
+        System.out.println(params);
+        //验证签名（支付宝公钥）
+        boolean signVerified = AlipaySignature.rsaCheckV1(params, publicKey, CHARSET, SIGN_TYPE); // 调用SDK验证签名
+        //验证签名通过
+        if(signVerified){
+            System.out.println("验证通过:--------------------------------------------------");
+            // 商户订单号
+            String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "UTF-8");
+
+            // 支付宝交易流水号
+            String trade_no = new String(request.getParameter("trade_no").getBytes("ISO-8859-1"), "UTF-8");
+
+            // 付款金额
+            float money = Float.parseFloat(new String(request.getParameter("total_amount").getBytes("ISO-8859-1"), "UTF-8"));
+
+            System.out.println("商户订单号="+out_trade_no);
+            System.out.println("支付宝交易号="+trade_no);
+            System.out.println("付款金额="+money);
+
+            //数据库操作
+//            orderService.setOrderComplete(out_trade_no);
+            //跳转到结果页面T/F
+            String redirect = "http://127.0.0.1:5173/paycallback?payResult=true&orderId=" + out_trade_no;
+            response.sendRedirect(redirect);
+        }else {
+            String redirect = "http://127.0.0.1:5173/paycallback?payResult=false&orderId=";
+            response.sendRedirect(redirect);
+        }
+    }
+
+    @ResponseBody
+    @PostMapping("/notifyUrl")  // 注意这里必须是POST接口
+//    @RequestMapping("/notifyUrl")
+    public String NotifyUrlUrlMethod(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException, UnsupportedEncodingException {
         System.out.println("=================================异步回调=====================================");
         // 获取支付宝GET过来反馈信息
         Map<String, String> params = new HashMap<String, String>();
@@ -136,6 +186,12 @@ public class PayController extends BaseController {
             System.out.println("商户订单号="+out_trade_no);
             System.out.println("支付宝交易号="+trade_no);
             System.out.println("付款金额="+money);
+            orderService.setOrderComplete(out_trade_no);
+            System.out.println("=================================修改成功=====================================");
+            System.out.println("=================================异步回调结束=====================================");
+            return "success";
+        }else{
+            return "fail";
         }
     }
 

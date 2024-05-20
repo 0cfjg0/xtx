@@ -91,16 +91,16 @@ pay:
     privateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCnbM7Nqc+B8edNCgecDFqssKhk2u90AHVrNj755nkiBg6AtX+0bNhxI6X0XV+5Yh5YbGfWqyQguW2sZ2vTZuaQl79+ENYSI2utZSColgdB+uozb63GtdRg9BCvilwCbHmwpzLo0BxBE2M53QRBpSKW0BcgVIHt39qAc4z6hWHL5RjgdDPNvej8XZupCx590FYgwLX5By6LoMmgAThziEOzw1DlZZuyNC1PR/whmVIuFi6oc6jFlFA2MFvEpAj6Ih6Yfi6H3PmWB5RmR3vUFZo9x3lkMCQQAq7FDZFJp1nrWn3ccswGFTtw+Y78OF3VXeASoHfNIMOHhCOxoxjFOzk9AgMBAAECggEAb9CqWQ506KsfOANfy6cwk66z+A+D5mw7/ytOaeWztrZmzyzoKh6beww81HPb71qJO7LCssq/qR9OENtNVvWdPKosGMyzu49uZXJpmk4AcN9btJh8bX6YZVv7HNGB25iIuSMhS/1ZMVj6ZvWl1xWrgR9eopft4mkja7BAUjvscZftgkM6uaydCZOfeMVbnGEanr0c0toYzb7sl9ZFocjIqdmcOEBXzFTfpT0pmMG+SnhOX1xGnsGr1iGntCsxFgSAVwpqNB/ezg9E9u6XQS5RBatLxiK+4Y21f2nZv4NYqzTd31uoOXJVL3jp4y1dvJugOK9uhXqY97AZg9VcxlX4XQKBgQDefJGqU3hmuG3W/HUlfyQz2VBGUdV6GPjvMnsayztL6SY6s/1gD6dgq/tyWPdZFRu1z2rsFKMciEhXj8b8Lef9rEZ5D1uJ6XYZjR4dH5XiTuhOpLuqLkLfOU/ufbiOjri0vhsLwBO9RoMsGgCU2Y8Cq3NFaVkLNGRc/0Sbq9FpTwKBgQDApPqNeRUL8PXczettswBLJupD5FVDJOVzpY6Zj1jMMKzU3JnQTc0wnj2l3V1yenJXEQoPHRAjlxZAu1j7CJENfVL5lu5cSRKJE9QcDu5a2R4sqe2TxeqzSId2a0GGndsLt+/1ieb+YWgE8DN8lemW5JKpgj2PkWcXKQm0meQ5swKBgFXu5VBVVx7Nw1cTQagO+IuyNwhCGWNEe/nflJ7funJyhhqMZKQSx8JWCxO6eycEOSS7DYBL5Ehj9xUi6meCz6UyQjIGFYQqETyDPgtfpMO5WI7vn7B2l8uiVlY2Zu9g/sSI3Odn8/faYVXKYUkc0tjkIezAaO0j+lPVIMnDzmmPAoGAFt8/lC5tDkbkmfuk2Rhoj4OmSrtAWEF4MJvWa2r2iv+4dWlfpbinBP+0qA25O49IJggy3op/0QnuLW9Q6DUjK6vWfyWpVTGjzryY8V/gcs7WY00llObpr7GLy8Z+OCJj0GddSRS/ZTJhbDyskD0oR68JrrB06KfFyp0nttaSnzsCgYBkTlR2QS17DYa+ySrwqKzMJINXE+MSQbrJByg6DrXv4ywsonpZugZPYOxi/l7u5BbS5HMWsgoGiywawuZg1RlJRdMHYezkWd00PLVzPumcO1bPFJomNVQI6atISm6U7v19Rlg2re0j8zJcCBDfg1OP8npFK5tjJPRvIt3PXyDtJA==
     serviceUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
     #同步回调地址
-    returnUrl: http://127.0.0.1:5173/paycallback?payResult=true&orderId=
+    returnUrl: http://127.0.0.1:8085/pay/returnUrl
     #异步回调
-    notifyUrl: http:127.0.0.1:8085/pay/notifyUrl
+    #内网穿透
+    notifyUrl: http://94f49692916eb332.natapp.cc/pay/notifyUrl
     #重定向页面（支付成功或者失败的页面）
     #    redirectUrl: http://erabbit.itheima.net/#/pay/callback
     redirectUrl: http://127.0.0.1:5173/paycallback
-    #IJPay 配置方式，直接配置回调的域名
-    domain: http://pcapi-xiaotuxian-front.itheima.net
     #网关
     gatewayurl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
   #PC微信支付
   wx:
     #应用编号
