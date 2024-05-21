@@ -16,6 +16,7 @@ import com.itheima.xiaotuxian.util.JwtUtil;
 import com.itheima.xiaotuxian.util.SmsUtil;
 import com.itheima.xiaotuxian.vo.member.RegisterVo;
 import com.itheima.xiaotuxian.vo.member.request.LoginVo;
+import com.itheima.xiaotuxian.vo.member.response.LoginResultVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;

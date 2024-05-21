@@ -13,8 +13,11 @@ import com.itheima.xiaotuxian.vo.member.response.ResetResultVo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -23,6 +26,16 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/reset")
 public class ResetController {
+    @Autowired
+    private UserMemberService userMemberService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+    @GetMapping("/mobile/check")
+  public R<String> reset(@RequestParam(name = "mobile") String mobile,@RequestParam (name = "code") String code){
+        
+
+        return R.ok();
+    }
 
 
 }
