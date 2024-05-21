@@ -10,6 +10,7 @@ import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.entity.member.UserMemberOpenInfo;
 
 import com.itheima.xiaotuxian.vo.member.request.LoginVo;
+import com.itheima.xiaotuxian.vo.member.response.LoginResultVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
