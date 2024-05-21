@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.itheima.xiaotuxian.entity.AbstractBasePO;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @TableName(value = "user_member_address")
 public class UserMemberAddress extends AbstractBasePO {
@@ -14,6 +16,7 @@ public class UserMemberAddress extends AbstractBasePO {
     /**
      * 用户id
      */
+    private String creator;
     private String memberId;
     /**
      * 收货人姓名
@@ -51,5 +54,6 @@ public class UserMemberAddress extends AbstractBasePO {
      * 地址标签,以英文逗号分割
      */
     private String addressTags;
-
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }
