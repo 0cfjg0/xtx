@@ -17,7 +17,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * @param cartSaveVo
      * @return 购物车商品信息
      */
-    public CartVo saveCart(CartSaveVo cartSaveVo);
+    public CartVo saveCart(CartSaveVo cartSaveVo,String userId);
 
 
 
@@ -40,7 +40,7 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      //* @param memberId 用户Id
      * @return 购物车列表
      */
-    public List<CartVo> getCarts();
+    public List<CartVo> getCarts(String userId);
 
 
     /**

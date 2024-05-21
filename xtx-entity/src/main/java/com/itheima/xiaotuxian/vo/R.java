@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class R<T> {
+public class R<T>{
     public static final String SUCCESS = "操作成功";
     public static final String ERROR = "操作失败";
     //@JsonIgnore

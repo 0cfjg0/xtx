@@ -50,7 +50,7 @@ public abstract class BaseController {
             throw new AuthException(ErrorMessageEnum.TOKEN_ERROR);
         }
     }
-
+    //调用此方法getUserId获取token携带的用户ID,实际调用getTokenValue,来获取id
     protected String getUserId() {
         var userId = getTokenValue("id");
         var token = request.getHeader("Authorization").replace("Bearer ", "");

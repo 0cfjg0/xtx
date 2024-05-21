@@ -17,6 +17,8 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
 
     /**
      * 1. 新增购物车信息
+     * 前端页面和数据库信息:商品数量 同步更改 3
+     *  (UserMemberCart 购物车商品对象  不存在情况)
      * @param userMemberCart
      */
     @Insert("insert into" +
@@ -26,11 +28,11 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
 
     /**
      * 通过skuId,从数据库中找到spuId
-     * @param id
+     * @param skuId
      * @return
      */
-    @Select("select spu_id from goods_sku where id = #{id}")
-    String selectCart(@Param("id") String id);
+    @Select("select spu_id from goods_sku where id = #{skuId}")
+    String selectCart(@Param("skuId") String skuId);
 
     /**
      * 通过spuId,从数据库中找到spuId对应的price
@@ -39,6 +41,24 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
      */
     @Select("select price from goods_spu where id = #{spuId}")
     BigDecimal selectCartPriceById(@Param("spuId") String spuId);
+
+    /**
+     * 前端页面和数据库信息:商品数量 同步更改 1
+     * 通过商品id (skuId) ,判断新增商品信息(UserMemberCart 购物车商品对象)是否存在
+     * @param skuId
+     * @return
+     */
+    @Select("select * from user_member_cart where sku_id = #{skuId}")
+    UserMemberCart findBySkuId(String skuId);
+
+    /**
+     * 前端页面和数据库信息:商品数量 同步更改 2
+     * 通过商品id (spuId),修改购物车中已存在商品的数量(UserMemberCart 购物车商品对象  存在情况)
+     * @param count
+     * @param id
+     */
+    @Update("update user_member_cart set quantity = #{count} where id = #{id}")
+    void updateQuantityById(@Param("count") Integer count, @Param("id") String id);
 
 
 
@@ -57,5 +77,12 @@ public interface UserMemberCartMapper extends BaseMapper<UserMemberCart> {
     @Update("update user_member_cart set seleted = #{selected}")
     void selectAllCarts(CartSelectedVo cartSelectedVo);
 
-
+    /**
+     * 前端页面和数据库信息:选中状态 同步更改
+     * 通过商品id (skuId) ,修改商品选中状态
+     * @param seleted
+     * @param skuId
+     */
+    @Update("update user_member_cart set seleted =#{seleted} where sku_id = #{skuId} ")
+    void updateSeletedBySkuId(@Param("seleted") Boolean seleted, @Param("skuId") String skuId);
 }

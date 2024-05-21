@@ -12,6 +12,7 @@ import com.itheima.xiaotuxian.vo.R;
 import com.itheima.xiaotuxian.vo.member.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ public class CartController extends BaseController {
      */
     @PostMapping()
     public R<CartVo>  saveCart(@RequestBody CartSaveVo cartSaveVo){
-        CartVo cartVo = userMemberCartService.saveCart(cartSaveVo);
+        //调用BaseController中,getUserId方法获取token携带的用户ID,实际调用getTokenValue,来获取id
+        String userId = getUserId();
+        CartVo cartVo = userMemberCartService.saveCart(cartSaveVo,userId);
         return R.ok(cartVo, R.SUCCESS);
     }
 
@@ -42,7 +45,8 @@ public class CartController extends BaseController {
      */
     @GetMapping()
     public R getCarts(){
-        List<CartVo> list = userMemberCartService.getCarts();
+        String userId = getUserId();
+        List<CartVo> list = userMemberCartService.getCarts(userId);
         return R.ok(list,R.SUCCESS);
     }
 

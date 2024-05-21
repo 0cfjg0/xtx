@@ -26,6 +26,7 @@ import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
 import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper, UserMemberCart> implements UserMemberCartService {
     @Autowired
     private GoodsService goodsService;
@@ -61,8 +63,6 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     private HighLevelUtil highLevelUtil;
 
 
-    private String memberId = "1609504249362780161";
-    private String client = "a123456asd";
 
 
     /**
@@ -77,6 +77,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         var cartVo = new CartVo();
         cartVo.setId(cart.getSpuId());
         cartVo.setSkuId(cart.getSkuId());
+
         var goodsStateValid = new AtomicBoolean(false);
         Optional.ofNullable(goodsSpuService.getById(cartVo.getId())).ifPresent(spu -> {
             cartVo.setName(spu.getName());
@@ -122,39 +123,38 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      */
     @Override
     @Transactional
-    public CartVo saveCart(CartSaveVo cartSaveVo) {
-        //1.创建 用户购物车 对象
+    public CartVo saveCart(CartSaveVo cartSaveVo, String userId) {
+        // 1.创建 用户购物车 对象
         UserMemberCart userMemberCart = new UserMemberCart();
-        //2.补全属性
+        // 1.1设置 购物车对象的 相关信息
         userMemberCart.setCreateTime(LocalDateTime.now());
-
-        ////创建用户对象,获取用户ID
-        //UserMember userMember = new UserMember();
-        //userMemberCart.setMemberId(userMember.getId());
-
-        userMemberCart.setMemberId("1609504249362780161");
-
+        userMemberCart.setMemberId(userId);
         userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
         userMemberCart.setQuantity(cartSaveVo.getCount());
-        userMemberCart.setSeleted(cartSaveVo.getSelected());
-
-        //通过skuId,从数据库中找到spuId
+        //通过 商品id (skuId),从数据库中找到spuId  selectSpuIdBySkuId()
         String spuId = userMemberCartMapper.selectCart(cartSaveVo.getSkuId());
         userMemberCart.setSpuId(spuId);
-        //通过spuId,从数据库中找到spuId对应的price
+        //通过商品id (spuId),从数据库中找到spuId对应的price
         BigDecimal price = userMemberCartMapper.selectCartPriceById(spuId);
         userMemberCart.setPrice(price);
 
-        ////保存 购物车信息 到 购物车表中
-        //int insert = userMemberCartMapper.insert(userMemberCart);
-        //String client = highLevelUtil.getClient().toString();
-
-        //3.保存 购物车信息 到 购物车表中
-        userMemberCartMapper.saveCart(userMemberCart);
-
-        //4.调用上面的fillCart()方法,将cartVo对象响应到前端
-        CartVo cartVo = this.fillCart(userMemberCart, "1609504249362780161", "pc");
-        System.out.println(cartVo);
+        // 2.保存 或 修改 购物信息 到 购物车表中
+        // 假如一件商品已经在数据库中保存了,现在又新增了一件,这时就不能再在数据库插入新的记录,而是修改数量
+        // 判断当前需要新增的购物信息,是否已经存在于数据库中
+        // 通过 商品id (skuId) 在数据库中查找
+        UserMemberCart userMemberCart1 = userMemberCartMapper.findBySkuId(cartSaveVo.getSkuId());
+        // 判断 userMemberCart1 是否为空,为空 说明数据库中没有,直接新增保存. 不为空 说明该商品已经存在,需要修改数量
+        if (userMemberCart1 == null) {
+            userMemberCartMapper.saveCart(userMemberCart);
+        } else {
+            // 计算该商品的数量,根据商品id 来修改
+            int number = cartSaveVo.getCount() + userMemberCart1.getQuantity();
+            userMemberCartMapper.updateQuantityById(number, userMemberCart1.getId());
+        }
+        //3.调用上面的fillCart()方法,将cartVo对象响应到前端
+        // 创建 CartVo对象,并对该对象的每个属性 设置值(也可一个个set)
+        CartVo cartVo = this.fillCart(userMemberCart, userId, "pc");
+        //log.info("购物车添加成功后,返回给前端的商品信息:{}", cartVo);
         return cartVo;
     }
 
@@ -166,18 +166,16 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      */
     @Override
     @Transactional
-    public List<CartVo> getCarts() {
-        //List<CartVo> list = userMemberCartMapper.getCarts(memberId);
-
-        List<UserMemberCart> userMemberList = userMemberCartMapper.getCarts(memberId);
-
+    public List<CartVo> getCarts(String userId) {
+        // 1.在购物车表中,通过用户id(memberId)查询购物车中所有商品
+        List<UserMemberCart> userMemberList = userMemberCartMapper.getCarts(userId);
+        // 2.把 UserMemberCart 对象  转换为 CartVo 对象
         List<CartVo> list = new ArrayList<>();
-
         for (UserMemberCart userMemberCart : userMemberList) {
-            CartVo cartVo = this.fillCart(userMemberCart, memberId, client);
+            CartVo cartVo = this.fillCart(userMemberCart, userId, "pc");
             list.add(cartVo);
-
         }
+        // 3.返回给前端
         return list;
     }
 
@@ -189,9 +187,13 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      */
     @Override
     public void selectAllCarts(CartSelectedVo cartSelectedVo) {
-        userMemberCartMapper.selectAllCarts(cartSelectedVo);
+        // 1.获取所有需要修改的商品id [skuId]
+        List<String> skuIds = cartSelectedVo.getIds();
+        // 2.根据每一个商品id,修改该商品的选中状态
+        for (String skuId : skuIds) {
+            userMemberCartMapper.updateSeletedBySkuId(cartSelectedVo.getSelected(),skuId);
+        }
     }
-
 
 
 }
