@@ -1,21 +1,13 @@
 package com.itheima.xiaotuxian.service.member.impl;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.CommonStatic;
 import com.itheima.xiaotuxian.constant.statics.GoodsStatic;
 import com.itheima.xiaotuxian.constant.statics.UserMemberStatic;
 import com.itheima.xiaotuxian.entity.goods.GoodsSku;
 import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
-import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
-import com.itheima.xiaotuxian.entity.goods.GoodsSpuProperty;
-import com.itheima.xiaotuxian.entity.member.UserMember;
-import com.itheima.xiaotuxian.entity.member.UserMemberAddress;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
-import com.itheima.xiaotuxian.exception.BusinessException;
 import com.itheima.xiaotuxian.mapper.goods.GoodsSkuMapper;
 import com.itheima.xiaotuxian.mapper.goods.GoodsSpuMapper;
 import com.itheima.xiaotuxian.mapper.member.UserMemberCartMapper;
@@ -31,13 +23,10 @@ import com.itheima.xiaotuxian.vo.member.CartSaveVo;
 import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -45,9 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -71,7 +57,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Autowired
     private GoodsSpuMapper goodsSpuMapper;
 
-//    //下面是用户id和用户名,之后要改成从令牌获取
+    //下面是用户id和用户名,之后要改成从令牌获取
 //    private String memberId = "1663375385531781122";
 //    private String client = "xiaotuxian001";
 
@@ -201,19 +187,17 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         List<String> skuIds = cartSelectedVo.getIds();
         // 2.根据每一个商品id,修改该商品的选中状态
         for (String skuId : skuIds) {
-            userMemberCartMapper.updateSeletedBySkuId(cartSelectedVo.getSelected(),skuId);
+            userMemberCartMapper.updateSeletedBySkuId(cartSelectedVo.getSelected(), skuId);
         }
     }
-
-
-
     /**
      * 获取用户购物车数量
      *
      * @return
+     * @param userId
      */
     @Override
-    public Integer getCartCount() {
+    public Integer getCartCount(String memberId) {
         Integer count = userMemberCartMapper.sumQuntity(memberId);
         return count;
     }
@@ -222,9 +206,10 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      * 合并购物车
      *
      * @param cartSaveVoList
+     * @param userId
      */
     @Override
-    public void mergeCartCout(List<CartSaveVo> cartSaveVoList) {
+    public void mergeCartCout(List<CartSaveVo> cartSaveVoList, String memberId) {
         List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
         //判断重复添加的商品
         for (UserMemberCart userMemberCart : cartList) {
@@ -265,17 +250,18 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      * 修改购物车商品
      *
      * @param cartSaveVo
+     * @param userId
      * @return
      */
     @Override
-    public CartVo updateUserCart(CartSaveVo cartSaveVo) {
+    public CartVo updateUserCart(CartSaveVo cartSaveVo, String memberId) {
         UserMemberCart cart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
         System.out.println("------------" + cartSaveVo);
         cart.setQuantity(cartSaveVo.getCount());
         cart.setSeleted(cartSaveVo.getSelected());
         int i = userMemberCartMapper.updateById(cart);
         System.out.println("==========================" + i);
-        CartVo cartVo = fillCart(cart, memberId, client);
+        CartVo cartVo = fillCart(cart, memberId, "pc");
         return cartVo;
     }
 
@@ -283,17 +269,16 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      * 清空/删除购物车商品
      *
      * @param batchDeleteCartVo
+     * @param userId
      * @return
      */
     @Override
-    public void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo) {
+    public void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo, String memberId) {
         List<String> ids = batchDeleteCartVo.getIds();
         for (String id : ids) {
             userMemberCartMapper.deleteUserCart(memberId, id);
         }
     }
-
-
 
 
 }

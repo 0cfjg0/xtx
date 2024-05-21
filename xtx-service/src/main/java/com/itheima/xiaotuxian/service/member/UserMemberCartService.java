@@ -33,9 +33,10 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * 清空/删除购物车商品
      *
      * @param batchDeleteCartVo
+     * @param userId
      * @return
      */
-    void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo);
+    void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo, String userId);
 
     /**
      * 2. 获取用户购物车列表
@@ -49,23 +50,26 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      * 获取用户购物车数量
      *
      * @return
+     * @param userId
      */
-    Integer getCartCount();
+    Integer getCartCount(String userId);
 
     /**
      * 合并购物车
      *
      * @param cartSaveVoList
+     * @param userId
      */
-    void mergeCartCout(List<CartSaveVo> cartSaveVoList);
+    void mergeCartCout(List<CartSaveVo> cartSaveVoList, String userId);
 
     /**
      * 修改购物车商品
      *
      * @param cartSaveVo
+     * @param userId
      * @return
      */
-    CartVo updateUserCart(CartSaveVo cartSaveVo);
+    CartVo updateUserCart(CartSaveVo cartSaveVo, String userId);
 
     /**
      * 3. 购物车全选/全不选

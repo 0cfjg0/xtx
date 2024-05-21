@@ -27,23 +27,14 @@ public class CartController extends BaseController {
     @Autowired
     private UserMemberCartService cartService;
 
-    //购物车列表
-    @GetMapping()
-    public R getCartList() {
-        System.out.println("-----------------------------------ok");
-        List<CartVo> cartList = cartService.getCartList();
-        return R.ok(cartList, "78945613");
-    }
-
-
-
     /**
      * 获取购物车数量
      */
 
     @GetMapping("/count")
     public R getCartCount() {
-        Integer count = cartService.getCartCount();
+        String userId = getUserId();
+        Integer count = cartService.getCartCount(userId);
         return R.ok(count);
     }
     /**
@@ -65,7 +56,8 @@ public class CartController extends BaseController {
      */
     @PostMapping("/merge")
     public R mergeCartCout(@RequestBody List<CartSaveVo> cartSaveVoList) {
-        cartService.mergeCartCout(cartSaveVoList);
+        String userId = getUserId();
+        cartService.mergeCartCout(cartSaveVoList,userId);
         return R.ok();
     }
     /**
@@ -97,8 +89,9 @@ public class CartController extends BaseController {
      */
     @PutMapping("/{skuId}")
     public R updateUserCart(@RequestBody CartSaveVo cartSaveVo, @PathVariable String skuId) {
+        String userId = getUserId();
         cartSaveVo.setSkuId(skuId);
-        CartVo cartVo = cartService.updateUserCart(cartSaveVo);
+        CartVo cartVo = cartService.updateUserCart(cartSaveVo,userId);
         return R.ok(cartVo, "修改成功");
     }
 
@@ -110,8 +103,9 @@ public class CartController extends BaseController {
      */
     @DeleteMapping()
     public R deleteUserCart(@RequestBody BatchDeleteCartVo batchDeleteCartVo) {
-        System.out.println("---------------" + batchDeleteCartVo);
-        cartService.deleteUserCart(batchDeleteCartVo);
+//        System.out.println("---------------" + batchDeleteCartVo);
+        String userId = getUserId();
+        cartService.deleteUserCart(batchDeleteCartVo,userId);
         return R.ok();
     }
 
