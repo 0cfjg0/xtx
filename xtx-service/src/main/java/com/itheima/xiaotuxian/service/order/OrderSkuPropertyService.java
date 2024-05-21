@@ -7,4 +7,6 @@ import java.util.ArrayList;
 
 public interface OrderSkuPropertyService extends IService<OrderSkuProperty> {
     String getOrderAttrsText(String orderId, String skuId, String client, ArrayList<OrderSkuProperty> ospsvs);
+
+    public void insertOosp(OrderSkuProperty orderSkuProperty);
 }

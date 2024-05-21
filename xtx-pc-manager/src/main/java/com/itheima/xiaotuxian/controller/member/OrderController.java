@@ -18,6 +18,7 @@ import com.itheima.xiaotuxian.entity.order.OrderLogistics;
 import com.itheima.xiaotuxian.entity.order.OrderSku;
 import com.itheima.xiaotuxian.entity.order.OrderSkuProperty;
 import com.itheima.xiaotuxian.exception.BusinessException;
+import com.itheima.xiaotuxian.mapper.order.OrderMapper;
 import com.itheima.xiaotuxian.service.goods.GoodsService;
 import com.itheima.xiaotuxian.service.goods.GoodsSkuService;
 import com.itheima.xiaotuxian.service.goods.GoodsSpuService;
@@ -41,15 +42,11 @@ import com.itheima.xiaotuxian.vo.member.OrderDetailVo;
 import com.itheima.xiaotuxian.vo.member.OrderPageVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuPropertyVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsDetailVo;
-import com.itheima.xiaotuxian.vo.order.LogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderGoodsVo;
-import com.itheima.xiaotuxian.vo.order.OrderLogisticsVo;
-import com.itheima.xiaotuxian.vo.order.OrderPreSummaryVo;
-import com.itheima.xiaotuxian.vo.order.OrderPreVo;
-import com.itheima.xiaotuxian.vo.order.OrderSaveVo;
+import com.itheima.xiaotuxian.vo.order.*;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,9 +111,10 @@ public class OrderController extends BaseController {
     private OrderLogisticsDetailService orderLogisticsDetailService;
     @Autowired
     private GoodsSkuService goodsSkuService;
-
     @Autowired
     private GoodsSpuService goodsSpuService;
+    @Autowired
+    private OrderMapper ordermapper;
 
 
     /**
@@ -186,7 +184,8 @@ public class OrderController extends BaseController {
      */
     @PutMapping("/{id}/receipt")
     public R<OrderDetailVo> cannel(@PathVariable(name = "id") String id) {
-        var userId = getUserId();
+//        var userId = getUserId();
+        var userId = "1663375385531781122";
         var order = orderService.getById(id);
         if (!StrUtil.equals(userId, order.getMemberId())) {
             throw new BusinessException(ErrorMessageEnum.ORDER_NO_PRIVILEGE);
@@ -209,6 +208,14 @@ public class OrderController extends BaseController {
      *
      * @return 订单信息
      */
+    @GetMapping("/pre")
+    public R<OrderPreVo> getOrder(){
+        String id = "1663375385531781122";
+        List<AddressSimpleVo> address = orderService.getaddress(id);
+        List<OrderGoodsVo> goods = orderService.getgoods(id);
+        OrderPreSummaryVo summary = orderService.getsummary(id);
+        return R.ok(new OrderPreVo(address,goods,summary));
+    }
 
 
 
@@ -219,10 +226,14 @@ public class OrderController extends BaseController {
     /**
      * 删除订单
      *
-     * @param deleteVo 待操作信息
+     * @param
      * @return 操作结果
      */
-
+    @PutMapping("/cancel/{id}")
+    public R cancelOrder(@PathVariable String id){
+        orderService.cancelOrder(id);
+        return R.ok();
+    }
 
 
 
@@ -334,11 +345,16 @@ public class OrderController extends BaseController {
     public R<OrderPreVo> repurchase(@PathVariable(name = "id") String id) {
         OrderPreVo result = new OrderPreVo();
         // 获取用户地址信息
-        String userId = getUserId();
+        //暂时注释,取消令牌校验
+//        String userId = getUserId();
+        //暂时写死id
+        String userId = "1663375385531781122";
+        System.out.println(userId);
         Order originOrder = orderService.getById(id);
-        if(null == originOrder){
-            throw new BusinessException(ErrorMessageEnum.PARAMETER_ERROR);
-        }
+        //暂时注释,取消令牌校验
+//        if(null == originOrder){
+//            throw new BusinessException(ErrorMessageEnum.PARAMETER_ERROR);
+//        }
         List<OrderSku> orderSkus = orderSkuService.list(Wrappers.<OrderSku>lambdaQuery().eq(OrderSku::getOrderId,id));
          // 获取购物车商品信息 和 计算综述信息
         var summary = new OrderPreSummaryVo(0, BigDecimal.valueOf(0), BigDecimal.valueOf(0),
@@ -403,5 +419,77 @@ public class OrderController extends BaseController {
         return R.ok(result);
     }
 
+    //提交订单
+    @PostMapping("")
+    public R<OrderResponse> postOrder(@RequestBody OrderSaveVo orderSaveVo){
+        System.out.println(orderSaveVo);
+        return R.ok(orderService.postOrder(orderSaveVo));
+    }
 
+    //废弃
+//    //获取订单信息
+//    @GetMapping("/{id}")
+//    public R<OrderDetailVo> getOrder(@PathVariable String id){
+//        Order order = orderService.getOrder(id);
+//        Long countdown = getCountDown(order);
+//        //将order对象转成封装对象
+//        var orderRv = BeanUtil.toBean(order, OrderResponseVo.class);
+//        orderRv.setCountdown(countdown.intValue());
+//        return R.ok(orderRv);
+//    }
+
+    //获取订单信息
+    @GetMapping("/{id}")
+    public R<OrderDetailVo> getOrder(@PathVariable String id){
+        Order order = orderService.getOrder(id);
+        Long countdown = getCountDown(order);
+        //将order对象转成封装对象
+        var orderRv = BeanUtil.toBean(order, OrderDetailVo.class);
+        orderRv.setCountdown(countdown);
+        String orderid = orderRv.getId();
+        List<OrderSkuVo> skus = ordermapper.getGoods(orderid);
+        for (int i = 0; i < skus.size(); i++) {
+            List<OrderSkuPropertyVo> properties = ordermapper.getProperties(skus.get(i).getId());
+            skus.get(i).setProperties(properties);
+        }
+        orderRv.setSkus(skus);
+        return R.ok(orderRv);
+    }
+
+    //获取个人中心订单
+    @GetMapping("")
+    public R<Pager<OrderPageVo>> getOrderPage(Integer orderState, Integer page, Integer pageSize){
+        //暂时写死id
+        String id = "1663375385531781122";
+        if(orderState==0){
+            Pager<OrderPageVo> paper = orderService.getOrderPageAll(id,page,pageSize);
+            return R.ok(paper);
+        }
+        Pager<OrderPageVo> paper = orderService.getOrderPage(id,orderState,page,pageSize);
+        List<OrderPageVo> list = paper.getItems();
+        for (int i = 0; i < list.size(); i++) {
+            //获取订单号
+            String orderId = list.get(i).getId();
+            //转类型
+            var order = BeanUtil.toBean(list.get(i), Order.class);
+            Long count = getCountDown(order);
+            if(count == -1 && list.get(i).getOrderState()==1){
+                ordermapper.updateOrder(orderId);
+                list.get(i).setOrderState(6);
+            }
+            list.get(i).setCountdown(count);
+        }
+        paper = orderService.getOrderPage(id,orderState,page,pageSize);
+        for (OrderPageVo item : paper.getItems()) {
+            item.setCountdown(getCountDown(BeanUtil.toBean(item, Order.class)));
+        }
+        return R.ok(paper);
+    }
+//
+//    //确认收货
+//    @PutMapping("/member/order/{id}/receipt")
+//    public R putOrder(@PathVariable String id){
+//        orderService.putOrder(id);
+//        return R.ok();
+//    }
 }
