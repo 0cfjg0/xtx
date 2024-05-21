@@ -4,11 +4,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.RedisKeyStatic;
+import com.itheima.xiaotuxian.controller.BaseController;
 import com.itheima.xiaotuxian.entity.member.UserMember;
 import com.itheima.xiaotuxian.exception.AuthException;
 import com.itheima.xiaotuxian.exception.BusinessException;
@@ -23,6 +25,7 @@ import com.itheima.xiaotuxian.vo.member.request.LoginVo;
 import com.itheima.xiaotuxian.vo.member.response.LoginResultVo;
 import com.itheima.xiaotuxian.vo.token.TokenRequestVo;
 
+import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,7 +60,9 @@ public class LoginController {
     @Resource
     protected HttpServletRequest request;
 
-    /** 默认的用户头像信息 */
+    /**
+     * 默认的用户头像信息
+     */
     @Value("${account.avatar:}")
     private String avatar;
 
@@ -67,9 +72,19 @@ public class LoginController {
      * @param vo 登录信息
      * @return 登录信息
      */
+    @PostMapping
+    public R<LoginResultVo> login(@RequestBody LoginVo vo) {
 
+        LoginVo v = userMemberService.login(vo);
+        UserMember userMember = userMemberService.select(vo);
 
-
+        System.out.println(userMember);
+        String token = userMemberService.getToken(userMember.getId(), userMember.getAccount(), userMember.getNickname());
+        Claims claims = JwtUtil.getClaims(token);
+        System.out.println("claims"+claims);
+        LoginResultVo loginResultVo = convertMemberToLoginResult(userMember);
+        return R.ok(loginResultVo);
+    }
 
 
     /**
@@ -78,8 +93,18 @@ public class LoginController {
      * @param mobile 手机号
      * @return 验证码
      */
-
-
+    @GetMapping("/code")
+    public R<String> code(@RequestParam(name = "mobile")  String mobile) {
+        if (!Validator.isMobile(mobile)) {
+            throw new BusinessException(ErrorMessageEnum.MEMBER_MOBILE_FORMAT_INVALID);
+        }
+        int count = userMemberService.count(Wrappers.<UserMember>lambdaQuery().eq(UserMember::getMobile, mobile));
+//if (){
+//
+//}
+        userMemberService.sendLoginCode(mobile);
+        return R.ok();
+    }
 
     /**
      * 手机验证码登录
@@ -274,9 +299,9 @@ public class LoginController {
     }
 
     /**
-     * @description:
      * @param {*}
      * @return {*}
+     * @description:
      * @author: lbc
      */
     @GetMapping("/expireToken")
@@ -295,14 +320,14 @@ public class LoginController {
     }
 
     /**
-     * @description:
      * @param {*}
      * @return {*}
+     * @description:
      * @author: lbc
      */
     @GetMapping("/expireRefreshToken")
     public R<Boolean> expireRefreshToken(@RequestParam(name = "id") String id,
-            @RequestParam(name = "token") String token) {
+                                         @RequestParam(name = "token") String token) {
         String s = redisTemplate.opsForValue().get(RedisKeyStatic.KEY_PREFIX_REFESH_TOKEN + id + ":" + token);
         Boolean expireFlag = redisTemplate.expire(RedisKeyStatic.KEY_PREFIX_REFESH_TOKEN + id + ":" + token, 0,
                 TimeUnit.SECONDS);
@@ -316,4 +341,5 @@ public class LoginController {
 
         return R.ok(expireFlag);
     }
+
 }

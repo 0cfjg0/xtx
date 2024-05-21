@@ -59,22 +59,22 @@ token:
 
 #短信相关的配置信息
 sms:
-  region-id: cn-hangzhou
-  accessKey: LTAI4FqsEN4TvQo4859WFfPr
-  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
-  register:
-    sign: 传智播客
-    template-code: SMS_173696218
-  login:
-    sign: 传智播客
-    template-code: SMS_173696220
-  reset:
-    sign: 传智播客
-    template-code: SMS_173696217
-  social:
-    sign: 传智播客
-    template-code: SMS_173696221
-  testCode: 123456
+#  region-id: cn-hangzhou
+#  accessKey: LTAI4FqsEN4TvQo4859WFfPr
+#  secret: T0FOH2W6Kv06vTJv7bCEOSe0Bh7fOY
+#  register:
+#    sign: 传智播客
+#    template-code: SMS_173696218
+#  login:
+#    sign: 传智播客
+#    template-code: SMS_173696220
+#  reset:
+#    sign: 传智播客
+#    template-code: SMS_173696217
+#  social:
+#    sign: 传智播客
+#    template-code: SMS_173696221
+#  testCode: 123456
 
 
 pay:

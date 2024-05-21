@@ -21,6 +21,6 @@ public class LoginVo {
      * 密码
      */
     @NotBlank(message = "密码不能为空")
-    @Length(min = 6, max = 20, message = "密码格式错误")
+    @Length(min = 6, max = 14, message = "密码格式错误")
     private String password;
 }
