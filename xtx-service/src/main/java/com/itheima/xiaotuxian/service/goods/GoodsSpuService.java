@@ -3,6 +3,7 @@ package com.itheima.xiaotuxian.service.goods;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo;
 import com.itheima.xiaotuxian.vo.goods.goods.GoodsQueryPageVo;
 
 import java.util.HashSet;
@@ -34,4 +35,7 @@ public interface GoodsSpuService extends IService<GoodsSpu> {
     List<String> getFrontIdBySpuId(List<String> spuIdList);
 
     List<String> getFrontIdsByMemberId(String userId);
+
+
+    List<GoodsItemResultVo> getNewGoods();
 }
