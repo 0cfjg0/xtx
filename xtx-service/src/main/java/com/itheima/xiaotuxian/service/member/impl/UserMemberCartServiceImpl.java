@@ -212,40 +212,10 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
      */
     @Override
     public void mergeCartCout(List<CartSaveVo> cartSaveVoList, String memberId) {
-        List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
         //判断重复添加的商品
-        for (UserMemberCart userMemberCart : cartList) {
-            String skuId = userMemberCart.getSkuId();
-            for (int i = 0; i < cartSaveVoList.size(); i++) {
-                if (skuId.equals(cartSaveVoList.get(i).getSkuId())) {
-                    userMemberCart.setQuantity(userMemberCart.getQuantity() + cartSaveVoList.get(i).getCount());
-                    userMemberCartMapper.updateById(userMemberCart);
-                    cartSaveVoList.remove(i);
-                    break;
-                }
-            }
-        }
         for (CartSaveVo cartSaveVo : cartSaveVoList) {
-            UserMemberCart userMemberCart = new UserMemberCart();
-            //传下的数据
-            userMemberCart.setSkuId(cartSaveVo.getSkuId());
-            userMemberCart.setQuantity(cartSaveVo.getCount());
-            userMemberCart.setSeleted(cartSaveVo.getSelected());
-            //从数据库找到的数据
-            //通过sku_id在goods_sku数据库表里查到squ_id
-            GoodsSku goodsSku = goodsSkuMapper.selectById(cartSaveVo.getSkuId());
-            System.out.println("goodsSku = " + goodsSku);
-            userMemberCart.setSpuId(goodsSku.getSpuId());
-            //通过squ_id在goods_squ数据库表里查到price
-            GoodsSpu goodsSpu = goodsSpuMapper.selectById(goodsSku.getSpuId());
-            userMemberCart.setPrice(goodsSpu.getPrice());
-
-            userMemberCart.setMemberId(memberId);
-            userMemberCart.setCreateTime(LocalDateTime.now());
-            //添加进去
-            userMemberCartMapper.insert(userMemberCart);
+            saveCart(cartSaveVo, memberId);
         }
-
     }
 
     /**
