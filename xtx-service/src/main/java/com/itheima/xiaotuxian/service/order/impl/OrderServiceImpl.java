@@ -299,10 +299,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<AddressSimpleVo> list = ordermapper.getaddressById(orderSaveVo.getAddressId());
         AddressSimpleVo address = new AddressSimpleVo();
         for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).getIsDefault()==0){
-                address = list.get(i);
-                break;
-            }
+//            if(list.get(i).getIsDefault()==0){
+//                address = list.get(i);
+//                break;
+//            }
+            address = list.get(i);
         }
         order.setReceiverContact(address.getReceiver());
         order.setReceiverAddress(address.getAddress());

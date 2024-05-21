@@ -157,23 +157,19 @@ public class PayController extends BaseController {
     @ResponseBody
     @PostMapping("/notifyUrl")  // 注意这里必须是POST接口
 //    @RequestMapping("/notifyUrl")
-    public String NotifyUrlUrlMethod(HttpServletRequest request) throws AlipayApiException, UnsupportedEncodingException, UnsupportedEncodingException {
+    public String NotifyUrlUrlMethod(HttpServletRequest request,HttpServletResponse response,HttpSession session) throws AlipayApiException, UnsupportedEncodingException, UnsupportedEncodingException {
         System.out.println("=================================异步回调=====================================");
-        // 获取支付宝GET过来反馈信息
-        Map<String, String> params = new HashMap<String, String>();
+        // 获取支付宝POST过来反馈信息
+        Map<String, String> params = new HashMap<>();
         Map<String, String[]> requestParams = request.getParameterMap();
-        for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
-            String name = (String) iter.next();
-            String[] values = (String[]) requestParams.get(name);
-            String valueStr = "";
-            for (int i = 0; i < values.length; i++) {
-                valueStr = (i == values.length - 1) ? valueStr + values[i] : valueStr + values[i] + ",";
-            }
+        for (String name : requestParams.keySet()) {
+            params.put(name, request.getParameter(name));
         }
         //验证签名（支付宝公钥）
         boolean signVerified = AlipaySignature.rsaCheckV1(params, publicKey, CHARSET, SIGN_TYPE); // 调用SDK验证签名
         //验证签名通过
         if(signVerified){
+            System.out.println("================================验签通过====================================");
             // 商户订单号
             String out_trade_no = new String(request.getParameter("out_trade_no").getBytes("ISO-8859-1"), "UTF-8");
 

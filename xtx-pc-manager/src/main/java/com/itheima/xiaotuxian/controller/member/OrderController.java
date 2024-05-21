@@ -492,4 +492,39 @@ public class OrderController extends BaseController {
 //        orderService.putOrder(id);
 //        return R.ok();
 //    }
+
+    //获取订单详情信息
+    @GetMapping("/detail/{id}")
+    public R<OrderPreVo> getOrderById(@PathVariable String id){
+        Order order = orderService.getOrder(id);
+        List<AddressSimpleVo> address = new ArrayList<>();
+        AddressSimpleVo addressSimpleVo = new AddressSimpleVo();
+        addressSimpleVo.setAddress(order.getReceiverAddress());
+        addressSimpleVo.setContact(order.getReceiverMobile());
+        addressSimpleVo.setReceiver(order.getReceiverContact());
+        addressSimpleVo.setIsDefault(0);
+        address.add(addressSimpleVo);
+        List<OrderSkuVo> skus = ordermapper.getGoods(id);
+        List<OrderGoodsVo> goods = new ArrayList<>();
+        System.out.println(skus);
+        Integer sum = 0;
+        for (OrderSkuVo orderSkuVo : skus) {
+            OrderGoodsVo orderGoodsVo = BeanUtil.toBean(orderSkuVo,OrderGoodsVo.class);
+            orderGoodsVo.setId(orderSkuVo.getSpuId());
+            orderGoodsVo.setSkuId(orderSkuVo.getId());
+            orderGoodsVo.setPicture(orderSkuVo.getImage());
+            orderGoodsVo.setCount(orderSkuVo.getQuantity());
+            orderGoodsVo.setPrice(orderSkuVo.getCurPrice());
+            orderGoodsVo.setTotalPrice(orderSkuVo.getCurPrice().multiply(BigDecimal.valueOf(orderSkuVo.getQuantity())));
+            orderGoodsVo.setTotalPayPrice(orderSkuVo.getCurPrice().multiply(BigDecimal.valueOf(orderSkuVo.getQuantity())));
+            goods.add(orderGoodsVo);
+            sum += orderSkuVo.getQuantity();
+        }
+        OrderPreSummaryVo summary = new OrderPreSummaryVo();
+        summary.setGoodsCount(sum);
+        summary.setTotalPrice(order.getPayMoney());
+        summary.setPostFee(order.getPostFee());
+        summary.setTotalPayPrice(order.getPayMoney());
+        return R.ok(new OrderPreVo(address,goods,summary));
+    }
 }

@@ -94,7 +94,7 @@ pay:
     returnUrl: http://127.0.0.1:8085/pay/returnUrl
     #异步回调
     #内网穿透
-    notifyUrl: http://94f49692916eb332.natapp.cc/pay/notifyUrl
+    notifyUrl: http://89zzwniz.beesnat.com/pay/notifyUrl
     #重定向页面（支付成功或者失败的页面）
     #    redirectUrl: http://erabbit.itheima.net/#/pay/callback
     redirectUrl: http://127.0.0.1:5173/paycallback
