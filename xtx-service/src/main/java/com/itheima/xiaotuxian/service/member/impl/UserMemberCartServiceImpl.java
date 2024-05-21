@@ -121,37 +121,38 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Transactional
     public CartVo saveCart(CartSaveVo cartSaveVo, String userId) {
         // 1.创建 用户购物车 对象
-        UserMemberCart userMemberCart = new UserMemberCart();
-        // 1.1设置 购物车对象的 相关信息
-        userMemberCart.setCreateTime(LocalDateTime.now());
-        userMemberCart.setMemberId(userId);
-        userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
-        userMemberCart.setQuantity(cartSaveVo.getCount());
-        //通过 商品id (skuId),从数据库中找到spuId  selectSpuIdBySkuId()
-        String spuId = userMemberCartMapper.selectCart(cartSaveVo.getSkuId());
-        userMemberCart.setSpuId(spuId);
-        //通过商品id (spuId),从数据库中找到spuId对应的price
-        BigDecimal price = userMemberCartMapper.selectCartPriceById(spuId);
-        userMemberCart.setPrice(price);
-
-        // 2.保存 或 修改 购物信息 到 购物车表中
-        // 假如一件商品已经在数据库中保存了,现在又新增了一件,这时就不能再在数据库插入新的记录,而是修改数量
-        // 判断当前需要新增的购物信息,是否已经存在于数据库中
-        // 通过 商品id (skuId) 在数据库中查找
-        UserMemberCart userMemberCart1 = userMemberCartMapper.findBySkuId(cartSaveVo.getSkuId(), userId);
-        // 判断 userMemberCart1 是否为空,为空 说明数据库中没有,直接新增保存. 不为空 说明该商品已经存在,需要修改数量
-        if (userMemberCart1 == null) {
-            userMemberCartMapper.saveCart(userMemberCart);
-        } else {
-            // 计算该商品的数量,根据商品id 来修改
-            int number = cartSaveVo.getCount() + userMemberCart1.getQuantity();
-            userMemberCartMapper.updateQuantityById(number, userMemberCart1.getId());
+        UserMemberCart userMemberCart = null;
+        try {
+            userMemberCart = userMemberCartMapper.getCart(userId, cartSaveVo.getSkuId());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println("-----456--------------");
         }
+        // 判断 userMemberCart1 是否为空,为空 说明数据库中没有,直接新增保存. 不为空 说明该商品已经存在,需要修改数量
+        if (userMemberCart != null) {
+            // 计算该商品的数量,根据商品id 来修改
+            userMemberCart.setQuantity(cartSaveVo.getCount() + userMemberCart.getQuantity());
+            userMemberCartMapper.updateById(userMemberCart);
+        } else {
+            userMemberCart = new UserMemberCart();
+            // 1.1设置 购物车对象的 相关信息
+            userMemberCart.setCreateTime(LocalDateTime.now());
+            userMemberCart.setMemberId(userId);
+            userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
+            userMemberCart.setQuantity(cartSaveVo.getCount());
+            //通过 商品id (skuId),从数据库中找到spuId  selectSpuIdBySkuId()
+            String spuId = userMemberCartMapper.selectCart(cartSaveVo.getSkuId());
+            userMemberCart.setSpuId(spuId);
+            //通过商品id (spuId),从数据库中找到spuId对应的price
+            BigDecimal price = userMemberCartMapper.selectCartPriceById(spuId);
+            userMemberCart.setPrice(price);
+            userMemberCartMapper.insert(userMemberCart);
+        }
+
         //3.调用上面的fillCart()方法,将cartVo对象响应到前端
         // 创建 CartVo对象,并对该对象的每个属性 设置值(也可一个个set)
-        CartVo cartVo = this.fillCart(userMemberCart, userId, "pc");
         //log.info("购物车添加成功后,返回给前端的商品信息:{}", cartVo);
-        return cartVo;
+        return this.fillCart(userMemberCart, userId, "pc");
     }
 
     /**
@@ -190,11 +191,12 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
             userMemberCartMapper.updateSeletedBySkuId(cartSelectedVo.getSelected(), skuId);
         }
     }
+
     /**
      * 获取用户购物车数量
      *
-     * @return
      * @param userId
+     * @return
      */
     @Override
     public Integer getCartCount(String memberId) {
