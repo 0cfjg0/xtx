@@ -31,7 +31,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("select u.spu_id as 'id',g.price,u.sku_id,u.quantity as 'count'\n" +
             "from user_member_cart u\n" +
             "         inner join goods_spu g on u.spu_id = g.id\n" +
-            "where u.member_id = ${id};")
+            "where u.member_id = ${id} and u.seleted = 1;")
     List<OrderGoodsVo> getgoods(String id);
 
     @Select("select property_main_name,property_value_name from goods_spu_property where spu_id = ${id};")
