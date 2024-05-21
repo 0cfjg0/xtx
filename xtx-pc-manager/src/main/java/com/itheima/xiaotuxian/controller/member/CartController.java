@@ -37,14 +37,15 @@ public class CartController extends BaseController {
         Integer count = cartService.getCartCount(userId);
         return R.ok(count);
     }
+
     /**
      * 1. 保存购物车商品信息,返回需要的的cartVo
      */
     @PostMapping()
-    public R<CartVo>  saveCart(@RequestBody CartSaveVo cartSaveVo){
+    public R<CartVo> saveCart(@RequestBody CartSaveVo cartSaveVo) {
         //调用BaseController中,getUserId方法获取token携带的用户ID,实际调用getTokenValue,来获取id
         String userId = getUserId();
-        CartVo cartVo = cartService.saveCart(cartSaveVo,userId);
+        CartVo cartVo = cartService.saveCart(cartSaveVo, userId);
         return R.ok(cartVo, R.SUCCESS);
     }
 
@@ -56,26 +57,30 @@ public class CartController extends BaseController {
      */
     @PostMapping("/merge")
     public R mergeCartCout(@RequestBody List<CartSaveVo> cartSaveVoList) {
+        System.out.println("------123-------------" + cartSaveVoList);
         String userId = getUserId();
-        cartService.mergeCartCout(cartSaveVoList,userId);
+        System.out.println("-----------------------456-" + userId);
+        cartService.mergeCartCout(cartSaveVoList, userId);
         return R.ok();
     }
+
     /**
      * 2. 获取用户购物车列表
      */
-    @GetMapping()
-    public R getCarts(){
+    @GetMapping("")
+    public R getCarts() {
         String userId = getUserId();
         List<CartVo> list = cartService.getCarts(userId);
-        return R.ok(list,R.SUCCESS);
+        return R.ok(list, R.SUCCESS);
     }
 
     /**
      * 3. 购物车全选/全不选
+     *
      * @return
      */
     @PutMapping("/selected")
-    public R selectAllCarts(@RequestBody CartSelectedVo cartSelectedVo){
+    public R selectAllCarts(@RequestBody CartSelectedVo cartSelectedVo) {
         cartService.selectAllCarts(cartSelectedVo);
         return R.ok();
     }
@@ -91,7 +96,7 @@ public class CartController extends BaseController {
     public R updateUserCart(@RequestBody CartSaveVo cartSaveVo, @PathVariable String skuId) {
         String userId = getUserId();
         cartSaveVo.setSkuId(skuId);
-        CartVo cartVo = cartService.updateUserCart(cartSaveVo,userId);
+        CartVo cartVo = cartService.updateUserCart(cartSaveVo, userId);
         return R.ok(cartVo, "修改成功");
     }
 
@@ -105,7 +110,7 @@ public class CartController extends BaseController {
     public R deleteUserCart(@RequestBody BatchDeleteCartVo batchDeleteCartVo) {
 //        System.out.println("---------------" + batchDeleteCartVo);
         String userId = getUserId();
-        cartService.deleteUserCart(batchDeleteCartVo,userId);
+        cartService.deleteUserCart(batchDeleteCartVo, userId);
         return R.ok();
     }
 

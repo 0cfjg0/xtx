@@ -257,11 +257,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public OrderResponse postOrder(OrderSaveVo orderSaveVo) {
+    public OrderResponse postOrder(OrderSaveVo orderSaveVo,String id) {
         Order order = new Order();
         //写死id
-        order.setCreator("1663375385531781122");
-        order.setMemberId("1663375385531781122");
+        order.setCreator(id);
+        order.setMemberId(id);
         order.setCreateTime(LocalDateTime.now());
         order.setUpdateTime(LocalDateTime.now());
         order.setPayType(orderSaveVo.getPayType());

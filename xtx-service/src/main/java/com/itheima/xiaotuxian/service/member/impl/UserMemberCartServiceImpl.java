@@ -138,7 +138,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
         // 假如一件商品已经在数据库中保存了,现在又新增了一件,这时就不能再在数据库插入新的记录,而是修改数量
         // 判断当前需要新增的购物信息,是否已经存在于数据库中
         // 通过 商品id (skuId) 在数据库中查找
-        UserMemberCart userMemberCart1 = userMemberCartMapper.findBySkuId(cartSaveVo.getSkuId());
+        UserMemberCart userMemberCart1 = userMemberCartMapper.findBySkuId(cartSaveVo.getSkuId(), userId);
         // 判断 userMemberCart1 是否为空,为空 说明数据库中没有,直接新增保存. 不为空 说明该商品已经存在,需要修改数量
         if (userMemberCart1 == null) {
             userMemberCartMapper.saveCart(userMemberCart);

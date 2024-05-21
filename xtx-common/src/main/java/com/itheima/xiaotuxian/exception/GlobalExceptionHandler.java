@@ -39,8 +39,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse> handleExcepting(AuthException e) {
         log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new CommonResponse(e.getErrorMessage()));
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new CommonResponse(e.getErrorMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new CommonResponse(ErrorMessageEnum.UN_KNOW,e.getMessage()));
+                .body(new CommonResponse(ErrorMessageEnum.UN_KNOW, e.getMessage()));
     }
 
     /**
@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(LoginException.class)
     public ResponseEntity<CommonResponse> handleExcepting(LoginException e) {
         log.error(e.getMessage(), e);
+        System.out.println("---------------------------------");
         return ResponseEntity.status(e.getStatus()).contentType(MediaType.APPLICATION_JSON).body(new CommonResponse(ErrorMessageEnum.UNAUTHORIZED));
     }
 
@@ -77,7 +78,7 @@ public class GlobalExceptionHandler {
      */
     @ResponseBody
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<CommonResponse>  handleNoHandlerFoundException(Exception e){
+    public ResponseEntity<CommonResponse> handleNoHandlerFoundException(Exception e) {
 //        addExceptionLog(e,request);
         log.error("路径不存在：{}", e.toString());
 //        return new ApiFinalResult(404, "服务器资源异常", "路径不存在");

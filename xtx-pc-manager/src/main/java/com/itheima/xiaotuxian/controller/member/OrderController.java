@@ -185,7 +185,7 @@ public class OrderController extends BaseController {
     @PutMapping("/{id}/receipt")
     public R<OrderDetailVo> cannel(@PathVariable(name = "id") String id) {
 //        var userId = getUserId();
-        var userId = "1663375385531781122";
+        var userId = getUserId();;
         var order = orderService.getById(id);
         if (!StrUtil.equals(userId, order.getMemberId())) {
             throw new BusinessException(ErrorMessageEnum.ORDER_NO_PRIVILEGE);
@@ -210,7 +210,7 @@ public class OrderController extends BaseController {
      */
     @GetMapping("/pre")
     public R<OrderPreVo> getOrder(){
-        String id = "1663375385531781122";
+        String id = getUserId();;
         List<AddressSimpleVo> address = orderService.getaddress(id);
         List<OrderGoodsVo> goods = orderService.getgoods(id);
         OrderPreSummaryVo summary = orderService.getsummary(id);
@@ -346,9 +346,9 @@ public class OrderController extends BaseController {
         OrderPreVo result = new OrderPreVo();
         // 获取用户地址信息
         //暂时注释,取消令牌校验
-//        String userId = getUserId();
+        String userId = getUserId();
         //暂时写死id
-        String userId = "1663375385531781122";
+//        String userId = "1663375385531781122";
         System.out.println(userId);
         Order originOrder = orderService.getById(id);
         //暂时注释,取消令牌校验
@@ -423,7 +423,7 @@ public class OrderController extends BaseController {
     @PostMapping("")
     public R<OrderResponse> postOrder(@RequestBody OrderSaveVo orderSaveVo){
         System.out.println(orderSaveVo);
-        return R.ok(orderService.postOrder(orderSaveVo));
+        return R.ok(orderService.postOrder(orderSaveVo,getUserId()));
     }
 
     //废弃
@@ -460,7 +460,7 @@ public class OrderController extends BaseController {
     @GetMapping("")
     public R<Pager<OrderPageVo>> getOrderPage(Integer orderState, Integer page, Integer pageSize){
         //暂时写死id
-        String id = "1663375385531781122";
+        String id = getUserId();;
         if(orderState==0){
             Pager<OrderPageVo> paper = orderService.getOrderPageAll(id,page,pageSize);
             return R.ok(paper);

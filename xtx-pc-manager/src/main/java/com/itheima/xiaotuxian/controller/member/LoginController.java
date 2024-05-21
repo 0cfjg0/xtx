@@ -74,15 +74,14 @@ public class LoginController {
      */
     @PostMapping
     public R<LoginResultVo> login(@RequestBody LoginVo vo) {
-
         LoginVo v = userMemberService.login(vo);
         UserMember userMember = userMemberService.select(vo);
-
-        System.out.println(userMember);
         String token = userMemberService.getToken(userMember.getId(), userMember.getAccount(), userMember.getNickname());
         Claims claims = JwtUtil.getClaims(token);
-        System.out.println("claims"+claims);
+        System.out.println("------------5:claims" + claims);
         LoginResultVo loginResultVo = convertMemberToLoginResult(userMember);
+
+
         return R.ok(loginResultVo);
     }
 
@@ -94,7 +93,7 @@ public class LoginController {
      * @return 验证码
      */
     @GetMapping("/code")
-    public R<String> code(@RequestParam(name = "mobile")  String mobile) {
+    public R<String> code(@RequestParam(name = "mobile") String mobile) {
         if (!Validator.isMobile(mobile)) {
             throw new BusinessException(ErrorMessageEnum.MEMBER_MOBILE_FORMAT_INVALID);
         }
