@@ -38,20 +38,20 @@ public class AddressController extends BaseController {
     private UserMemberAddressService addressService;
     @Autowired
     private BasicAreaInfoService basicAreaInfoService;
+
     /**
      * 添加收货地址
      *
      * @param addressVo 收货地址信息
      * @return 操作结果
      */
-
-
-
-
-
-
-
-
+    @PostMapping("")
+    public R inAddress(@RequestBody AddressVo addressVo) {
+        String userId = "1663375385531781122";
+//        String userId = getUserId();
+        addressService.inAddress(addressVo, userId);
+        return R.ok(0, "坤坤想换家");
+    }
 
 
     /**
@@ -60,14 +60,12 @@ public class AddressController extends BaseController {
      * @param addressVo 收货地址信息
      * @return 操作结果
      */
-
-
-
-
-
-
-
-
+    @PutMapping("/{id}")
+    public R updateAddress(@RequestBody AddressVo addressVo, @PathVariable String id) {
+        addressVo.setId(id);
+        addressService.updateAddress(addressVo);
+        return R.ok(id, "福建烤老鼠大");
+    }
 
     /**
      * 删除收货地址
@@ -75,12 +73,11 @@ public class AddressController extends BaseController {
      * @param id 收货地址id
      * @return 操作结果
      */
-
-
-
-
-
-
+    @DeleteMapping("/{id}")
+    public R delectAddress(@PathVariable String id) {
+        addressService.delAddress(id);
+        return R.ok(id, "舒服撒活动");
+    }
 
     /**
      * 查询收货地址详情
@@ -88,22 +85,24 @@ public class AddressController extends BaseController {
      * @param id 收货地址id
      * @return 操作结果
      */
-
-
-
-
-
-
+    @GetMapping("/{id}")
+    public R getAddress(@PathVariable String id) {
+        AddressSimpleVo addressSimpleVo = addressService.getAddress(id);
+        return R.ok(addressSimpleVo, "节日肺癌");
+    }
 
     /**
      * 获取收货地址列表
      *
      * @return 收货地址列表
      */
-
-
-
-
+    @GetMapping("")
+    public R getAddresses() {
+        String userId = "1663375385531781122";
+//        String userId = getUserId();
+        List<AddressSimpleVo> list = addressService.getAddressByUid(userId);
+        return R.ok(list, "附件扣篮大赛");
+    }
 
 
     /**
@@ -123,7 +122,7 @@ public class AddressController extends BaseController {
         return address;
     }
 
-     /**
+    /**
      * 删除收货地址
      *
      * @param id 收货地址id
