@@ -407,6 +407,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         ordermapper.cancelOrder(id);
     }
 
+    @Override
+    public void deleteOrder(String id) {
+        ordermapper.deleteOrder(id);
+    }
+
 
     @Autowired
     private RefundRecordService refundRecordService;
