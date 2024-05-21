@@ -61,8 +61,8 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     private GoodsSpuMapper goodsSpuMapper;
 
     //下面是用户id和用户名,之后要改成从令牌获取
-    private String memberId = "1609504249362780161";
-    private String client = "a123456asd";
+    private String memberId = "1663375385531781122";
+    private String client = "xiaotuxian001";
 
 
     /**
