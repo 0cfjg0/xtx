@@ -23,8 +23,75 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/member/cart")
 public class CartController extends BaseController {
+    @Autowired
+    private UserMemberCartService cartService;
 
+    //购物车列表
+    @GetMapping()
+    public R getCartList() {
+        System.out.println("-----------------------------------ok");
+        List<CartVo> cartList = cartService.getCartList();
+        return R.ok(cartList, "78945613");
+    }
 
+    /**
+     * 获取购物车数量
+     */
 
+    @GetMapping("/count")
+    public R getCartCount() {
+        Integer count = cartService.getCartCount();
+        return R.ok(count);
+    }
 
+    /**
+     * 合并购物车
+     *
+     * @param cartSaveVoList
+     * @return
+     */
+    @PostMapping("/merge")
+    public R mergeCartCout(@RequestBody List<CartSaveVo> cartSaveVoList) {
+        cartService.mergeCartCout(cartSaveVoList);
+        return R.ok();
+    }
+
+    /**
+     * 修改数据库
+     *
+     * @param cartSaveVo
+     * @param skuId
+     * @return
+     */
+    @PutMapping("/{skuId}")
+    public R updateUserCart(@RequestBody CartSaveVo cartSaveVo, @PathVariable String skuId) {
+        cartSaveVo.setSkuId(skuId);
+        CartVo cartVo = cartService.updateUserCart(cartSaveVo);
+        return R.ok(cartVo, "修改成功");
+    }
+
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    @DeleteMapping()
+    public R deleteUserCart(@RequestBody BatchDeleteCartVo batchDeleteCartVo) {
+        System.out.println("---------------" + batchDeleteCartVo);
+        cartService.deleteUserCart(batchDeleteCartVo);
+        return R.ok();
+    }
+
+    /**
+     * 保存
+     *
+     * @param cartSaveVo
+     * @return
+     */
+    @PostMapping()
+    public R<CartVo> saveCart(@RequestBody CartSaveVo cartSaveVo) {
+        CartVo cartVo = cartService.saveCart(cartSaveVo);
+        return R.ok(cartVo, R.SUCCESS);
+    }
 }

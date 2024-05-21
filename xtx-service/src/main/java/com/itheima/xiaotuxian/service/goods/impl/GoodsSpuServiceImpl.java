@@ -9,6 +9,7 @@ import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
 import com.itheima.xiaotuxian.mapper.goods.GoodsSpuMapper;
 import com.itheima.xiaotuxian.service.goods.GoodsSpuService;
 import com.itheima.xiaotuxian.service.record.RecordOrderSpuService;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo;
 import com.itheima.xiaotuxian.vo.goods.goods.GoodsQueryPageVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,15 @@ public class GoodsSpuServiceImpl extends ServiceImpl<GoodsSpuMapper, GoodsSpu> i
         List<String> frontIdList = this.getFrontIdBySpuId(spuIdList);
         return frontIdList;
     }
+    @Override
+    public List<GoodsItemResultVo> getNewGoods() {
+        System.out.println("----------------------------------------------13333-------------");
+
+        List<GoodsItemResultVo> list = goodsSpuMapper.getNewGoods();
+        System.out.println("----------------------------------------------13334-------------");
+
+        return list;
+    }
+
 
 }

@@ -12,12 +12,13 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
 /**
  * @author lbc
  * @date 2023年5月8日11:42:49
  */
 @Data
-public class GoodsItemResultVo  implements Serializable {
+public class GoodsItemResultVo implements Serializable {
     /**
      * spuId,即商品Id
      */

@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.xiaotuxian.entity.classification.ClassificationFront;
 import com.itheima.xiaotuxian.entity.goods.GoodsBrand;
 import com.itheima.xiaotuxian.vo.goods.brand.BrandQueryVo;
+import com.itheima.xiaotuxian.vo.goods.brand.BrandSimpleVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -49,4 +51,9 @@ public interface GoodsBrandMapper extends BaseMapper<GoodsBrand> {
      * @return 品牌列表
      */
     List<GoodsBrand> findAll(@Param("queryVo") BrandQueryVo queryVo);
+
+    @Select("select gb.logo_id as id,mp.url as picture,gb.name as name,gb.name_en as nameEn" +
+            " from goods_brand as gb inner join material_picture as mp on" +
+            " gb.brand_image_id = mp.id limit 0, 4  ")
+    List<BrandSimpleVo> getHotBrand();
 }

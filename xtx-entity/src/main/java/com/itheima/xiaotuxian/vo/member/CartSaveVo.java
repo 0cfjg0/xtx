@@ -1,12 +1,14 @@
 package com.itheima.xiaotuxian.vo.member;
 
 import lombok.Data;
+import org.apache.ibatis.annotations.Param;
 
 
 @Data
 public class CartSaveVo {
     /**
-     * SKUID
+     * 商品id
+     * sluId
      */
     private String skuId;
     /**

@@ -2,7 +2,7 @@ package com.itheima.xiaotuxian.entity.member;
 /*
  * @author: lbc
  * @Date: 2023-04-29 17:25:37
- * @Descripttion: 
+ * @Descripttion:
  */
 
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public class UserMember extends AbstractBasePO {
     /**
      * 三方标识
      */
-    @TableField(updateStrategy=FieldStrategy.IGNORED)
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private String unionId;
     /**
      * 注册来源，1为pc，2为webapp，3为微信小程序，4为Android，5为ios

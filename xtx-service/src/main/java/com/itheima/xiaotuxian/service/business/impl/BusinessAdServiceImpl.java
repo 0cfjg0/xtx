@@ -12,7 +12,7 @@ import com.itheima.xiaotuxian.entity.business.BusinessAd;
 import com.itheima.xiaotuxian.mapper.business.BusinessAdMapper;
 import com.itheima.xiaotuxian.service.business.BusinessAdService;
 import com.itheima.xiaotuxian.vo.home.response.BannerResultVo;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,13 +26,16 @@ import java.util.stream.Collectors;
 @Service
 public class BusinessAdServiceImpl extends ServiceImpl<BusinessAdMapper, BusinessAd> implements BusinessAdService {
 
-    /**
-     * 获取Banner
-     *
-     * @return Banner集合
-     * @param channel
-     * @param distributionSite
-     */
+    @Autowired
+    private  BusinessAdMapper businessAdMapper;
+
+//        /**
+//     * 获取Banner
+//     *
+//     * @return Banner集合
+//     * @param channel
+//     * @param distributionSite
+//     */
 
 
 
@@ -62,4 +65,12 @@ public class BusinessAdServiceImpl extends ServiceImpl<BusinessAdMapper, Busines
         }).collect(Collectors.toList());
         return banners;
     }
+
+    @Override
+    public List<BannerResultVo> getbanner(Integer distributionSite) {
+        List<BannerResultVo> getbanner = businessAdMapper.getbanner(distributionSite);
+        return getbanner;
+    }
+
+
 }

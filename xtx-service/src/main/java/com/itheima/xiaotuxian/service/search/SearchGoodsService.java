@@ -2,6 +2,7 @@ package com.itheima.xiaotuxian.service.search;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.xiaotuxian.entity.search.EsGoods;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo;
 import com.itheima.xiaotuxian.vo.goods.goods.GoodsQueryPageVo;
 import com.itheima.xiaotuxian.vo.record.HotGoodsQueryVo;
 import com.itheima.xiaotuxian.vo.search.SearchGoodsServiceVo;
@@ -97,4 +98,6 @@ public interface SearchGoodsService {
      * @return 热销商品
      */
     List<EsGoods> getHotGoods(HotGoodsQueryVo queryVo);
+
+
 }

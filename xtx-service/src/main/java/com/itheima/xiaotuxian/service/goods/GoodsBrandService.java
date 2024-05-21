@@ -91,4 +91,6 @@ public interface GoodsBrandService extends IService<GoodsBrand> {
      * @return
      */
     List<BrandSimpleVo> findBrandsByBackendIds(HashSet<String> frontBackEndIds);
+
+    List<BrandSimpleVo> getHotBrand();
 }

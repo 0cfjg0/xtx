@@ -53,7 +53,8 @@ public class GoodsBrandServiceImpl extends ServiceImpl<GoodsBrandMapper, GoodsBr
     private GoodsSpuMapper spuMapper;
     @Autowired
     private ClassificationBackendBrandService backendBrandService;
-
+    @Autowired
+    private GoodsBrandMapper goodsBrandMapper;
     @Transactional
     @Override
     public Boolean saveBrand(BrandSaveVo saveVo, String opUser) {
@@ -238,6 +239,12 @@ public class GoodsBrandServiceImpl extends ServiceImpl<GoodsBrandMapper, GoodsBr
         }).collect(Collectors.toList());
         queryVo.setBackends(backends);
         return this.findAll(queryVo);
+    }
+
+    @Override
+    public List<BrandSimpleVo> getHotBrand() {
+        List<BrandSimpleVo> list = goodsBrandMapper.getHotBrand();
+        return list;
     }
 
     /**

@@ -97,4 +97,6 @@ public interface ClassificationFrontService extends IService<ClassificationFront
      * @return
      */
     FrontDetailNewVo findDetailNewById(String id);
+
+    List<FrontResultVo> getHead();
 }

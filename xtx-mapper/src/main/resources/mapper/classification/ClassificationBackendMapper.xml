@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.xiaotuxian.mapper.classification.ClassificationBackendMapper">
+
+    <select id="getCategoryOneFindTwo" resultType="com.itheima.xiaotuxian.vo.classification.response.FrontResultVo">
+        select two.id, two.name, mp.url picture
+        from (select cc.id, cc.name, cc.picture_id
+              from classification_front cc
+                       INNER JOIN classification_front cp
+                                  on cc.pid = cp.id
+              where cp.id = #{pid}) two
+                 INNER JOIN material_picture mp
+                            on two.picture_id = mp.id
+    </select>
+
+    <!--    拿到所有的某个1级类目下的商品-->
+    <select id="getCategoryGoodsForOneId" resultType="com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo">
+        select gs.id, gs.name, gs.pc_decription `desc`, gs.price, mp.url picture
+        from (select gs.id, gs.name, gs.pc_decription, gs.price
+              from classification_backend c1
+                       INNER JOIN classification_backend c2
+                                  on c2.pid = c1.id
+                       INNER JOIN classification_backend c3
+                                  on c3.pid = c2.id
+                       INNER JOIN goods_spu gs
+                                  on gs.classification_backend_id = c3.id
+              where c1.id = #{pid}
+              ORDER BY gs.create_time desc LIMIT 9) gs
+                 INNER JOIN goods_spu_main_picture gsp
+                            on gs.id = gsp.spu_id
+                 INNER JOIN material_picture mp
+                            on gsp.picture_id = mp.id
+    </select>
+
+</mapper>

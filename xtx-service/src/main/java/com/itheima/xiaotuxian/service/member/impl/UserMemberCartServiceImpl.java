@@ -8,8 +8,12 @@ import com.itheima.xiaotuxian.constant.enums.ErrorMessageEnum;
 import com.itheima.xiaotuxian.constant.statics.CommonStatic;
 import com.itheima.xiaotuxian.constant.statics.GoodsStatic;
 import com.itheima.xiaotuxian.constant.statics.UserMemberStatic;
+import com.itheima.xiaotuxian.entity.goods.GoodsSku;
+import com.itheima.xiaotuxian.entity.goods.GoodsSpu;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
 import com.itheima.xiaotuxian.exception.BusinessException;
+import com.itheima.xiaotuxian.mapper.goods.GoodsSkuMapper;
+import com.itheima.xiaotuxian.mapper.goods.GoodsSpuMapper;
 import com.itheima.xiaotuxian.mapper.member.UserMemberCartMapper;
 import com.itheima.xiaotuxian.service.goods.GoodsService;
 import com.itheima.xiaotuxian.service.goods.GoodsSpuService;
@@ -51,14 +55,22 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     @Resource
     private UserMemberCartMapper userMemberCartMapper;
 
+    @Autowired
+    private GoodsSkuMapper goodsSkuMapper;
+    @Autowired
+    private GoodsSpuMapper goodsSpuMapper;
 
-    
+    //下面是用户id和用户名,之后要改成从令牌获取
+    private String memberId = "1609802334668328961";
+    private String client = "用户778223";
+
+
     /**
-     * @description: 填充购物车的信息
      * @param {UserMemberCart} cart
-     * @param {String} memberId
-     * @param {String} client
+     * @param {String}         memberId
+     * @param {String}         client
      * @return {*}
+     * @description: 填充购物车的信息
      * @author: lbc
      */
     private CartVo fillCart(UserMemberCart cart, String memberId, String client) {
@@ -78,7 +90,7 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
             cartVo.setStock(sku.getSaleableInventory());
             //手机版的因为自己更改样式（只是值得拼接）,并且返回规格的集合
             var specs = new ArrayList<SkuSpecVo>();
-            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(),client,specs));
+            cartVo.setAttrsText(goodsService.getGoodsAttrsText(sku.getId(), client, specs));
             cartVo.setSpecs(specs);
             //当前价格
             cartVo.setNowOriginalPrice(sku.getSellingPrice());
@@ -103,10 +115,156 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     }
 
     /**
-     * 新增购物车信息
+     * 获取用户购物车列表
+     * <p>
+     * //     * @param memberId 用户Id
      *
-     * @param saveVo
+     * @return 购物车列表
+     */
+    @Override
+    @Transactional
+    public List<CartVo> getCartList() {
+//        System.out.println("---------------------------456");
+        List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
+//        System.out.println(cartList + "========================");
+        List<CartVo> cartVoList = new ArrayList<>();
+        for (UserMemberCart userMemberCart : cartList) {
+            cartVoList.add(fillCart(userMemberCart, memberId, client));
+        }
+        return cartVoList;
+    }
+
+    /**
+     * 获取用户购物车数量
+     *
      * @return
      */
+    @Override
+    public Integer getCartCount() {
+        Integer count = userMemberCartMapper.sumQuntity(memberId);
+        return count;
+    }
 
+    /**
+     * 合并购物车
+     *
+     * @param cartSaveVoList
+     */
+    @Override
+    public void mergeCartCout(List<CartSaveVo> cartSaveVoList) {
+        List<UserMemberCart> cartList = userMemberCartMapper.getCartList(memberId);
+        //判断重复添加的商品
+        for (UserMemberCart userMemberCart : cartList) {
+            String skuId = userMemberCart.getSkuId();
+            for (int i = 0; i < cartSaveVoList.size(); i++) {
+                if (skuId.equals(cartSaveVoList.get(i).getSkuId())) {
+                    userMemberCart.setQuantity(userMemberCart.getQuantity() + cartSaveVoList.get(i).getCount());
+                    userMemberCartMapper.updateById(userMemberCart);
+                    cartSaveVoList.remove(i);
+                    break;
+                }
+            }
+        }
+        for (CartSaveVo cartSaveVo : cartSaveVoList) {
+            UserMemberCart userMemberCart = new UserMemberCart();
+            //传下的数据
+            userMemberCart.setSkuId(cartSaveVo.getSkuId());
+            userMemberCart.setQuantity(cartSaveVo.getCount());
+            userMemberCart.setSeleted(cartSaveVo.getSelected());
+            //从数据库找到的数据
+            //通过sku_id在goods_sku数据库表里查到squ_id
+            GoodsSku goodsSku = goodsSkuMapper.selectById(cartSaveVo.getSkuId());
+            System.out.println("goodsSku = " + goodsSku);
+            userMemberCart.setSpuId(goodsSku.getSpuId());
+            //通过squ_id在goods_squ数据库表里查到price
+            GoodsSpu goodsSpu = goodsSpuMapper.selectById(goodsSku.getSpuId());
+            userMemberCart.setPrice(goodsSpu.getPrice());
+
+            userMemberCart.setMemberId(memberId);
+            userMemberCart.setCreateTime(LocalDateTime.now());
+            //添加进去
+            userMemberCartMapper.insert(userMemberCart);
+        }
+
+    }
+
+    /**
+     * 修改购物车商品
+     *
+     * @param cartSaveVo
+     * @return
+     */
+    @Override
+    public CartVo updateUserCart(CartSaveVo cartSaveVo) {
+        UserMemberCart cart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
+        System.out.println("------------" + cartSaveVo);
+        cart.setQuantity(cartSaveVo.getCount());
+        cart.setSeleted(cartSaveVo.getSelected());
+        int i = userMemberCartMapper.updateById(cart);
+        System.out.println("==========================" + i);
+        CartVo cartVo = fillCart(cart, memberId, client);
+        return cartVo;
+    }
+
+    /**
+     * 清空/删除购物车商品
+     *
+     * @param batchDeleteCartVo
+     * @return
+     */
+    @Override
+    public void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo) {
+        List<String> ids = batchDeleteCartVo.getIds();
+        for (String id : ids) {
+            userMemberCartMapper.deleteUserCart(memberId, id);
+        }
+    }
+
+    /**
+     * 新增购物车信息
+     *
+     * @param
+     * @return
+     */
+    @Override
+    @Transactional
+    public CartVo saveCart(CartSaveVo cartSaveVo) {
+        //1.创建 用户购物车 对象
+        UserMemberCart userMemberCart = null;
+        try {
+            userMemberCart = userMemberCartMapper.getCart(memberId, cartSaveVo.getSkuId());
+            System.out.println("-------------------" + userMemberCart);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        if (userMemberCart != null) {
+            System.out.println("-------------------+7894564123");
+            userMemberCart.setQuantity(userMemberCart.getQuantity() + cartSaveVo.getCount());
+            updateById(userMemberCart);
+        } else {
+            System.out.println("-------------------9963.5554441");
+            //2.补全属性
+            userMemberCart = new UserMemberCart();
+            userMemberCart.setCreateTime(LocalDateTime.now());
+            userMemberCart.setMemberId(memberId);
+
+            userMemberCart.setSkuId(cartSaveVo.getSkuId());//商品ID
+            userMemberCart.setQuantity(cartSaveVo.getCount());
+            userMemberCart.setSeleted(cartSaveVo.getSelected());
+            //从数据库找到的数据
+            //通过sku_id在goods_sku数据库表里查到squ_id
+            GoodsSku goodsSku = goodsSkuMapper.selectById(cartSaveVo.getSkuId());
+            System.out.println("goodsSku = " + goodsSku);
+            userMemberCart.setSpuId(goodsSku.getSpuId());
+            //通过squ_id在goods_squ数据库表里查到price
+            GoodsSpu goodsSpu = goodsSpuMapper.selectById(goodsSku.getSpuId());
+            userMemberCart.setPrice(goodsSpu.getPrice());
+            //3.保存 购物车信息 到 购物车表中
+            userMemberCartMapper.insert(userMemberCart);
+        }
+        //4.调用上面的fillCart()方法,将cartVo对象响应到前端
+        CartVo cartVo = this.fillCart(userMemberCart, memberId, client);
+        System.out.println(cartVo);
+        return cartVo;
+    }
 }

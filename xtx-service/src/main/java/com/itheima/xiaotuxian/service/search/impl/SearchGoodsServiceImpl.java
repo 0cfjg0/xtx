@@ -16,6 +16,8 @@ import com.itheima.xiaotuxian.entity.classification.ClassificationFront;
 import com.itheima.xiaotuxian.entity.goods.GoodsKeyword;
 import com.itheima.xiaotuxian.entity.search.*;
 import com.itheima.xiaotuxian.exception.BusinessException;
+import com.itheima.xiaotuxian.mapper.goods.GoodsSkuMapper;
+import com.itheima.xiaotuxian.mapper.goods.GoodsSpuMapper;
 import com.itheima.xiaotuxian.service.classification.ClassificationBackendService;
 import com.itheima.xiaotuxian.service.classification.ClassificationFrontRelationService;
 import com.itheima.xiaotuxian.service.classification.ClassificationFrontService;
@@ -29,6 +31,7 @@ import com.itheima.xiaotuxian.service.search.SearchGoodsService;
 import com.itheima.xiaotuxian.vo.classification.BackendSimpleVo;
 import com.itheima.xiaotuxian.vo.classification.FrontSimpleVo;
 import com.itheima.xiaotuxian.vo.goods.brand.BrandSimpleVo;
+import com.itheima.xiaotuxian.vo.goods.goods.GoodsItemResultVo;
 import com.itheima.xiaotuxian.vo.goods.goods.GoodsQueryPageVo;
 import com.itheima.xiaotuxian.vo.goods.keyword.KeywordQueryVo;
 import com.itheima.xiaotuxian.vo.record.HotGoodsQueryVo;
@@ -56,6 +59,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -108,14 +112,18 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
     private static final String FIELD_PUBLISH_TIME = "publishTime";
     private static final String FIELD_FRONT_ID = "fronts.id";
 
+    @Autowired
+    private GoodsSpuMapper goodsSpuMapper;
+
     /**
      * 向es中保存商品信息
+     *
      * @param id 商品id
      * @return 是否保存成功
      */
     @Override
     public Boolean saveGoods(String id) {
-        log.info("es-saveGoods,id:{}",id);
+        log.info("es-saveGoods,id:{}", id);
         Optional.ofNullable(goodsSpuService.getById(id))
                 .ifPresent(goodsSpu -> {
                     var esGoods = BeanUtil.toBean(goodsSpu, EsGoods.class);
@@ -125,7 +133,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                     // 商品发布类型为定时发布时，则发布时间为后台输入的发布时间
                     Stream.of(goodsSpu.getShelfType()).filter(shelfType -> GoodsStatic.SHELF_TYPE_TIMING == shelfType)
                             .forEach(shelfType -> {
-                                Optional.ofNullable(goodsSpu.getPublishTime()).ifPresent(publishTime->
+                                Optional.ofNullable(goodsSpu.getPublishTime()).ifPresent(publishTime ->
                                         esGoods.setPublishTime(goodsSpu.getPublishTime().toEpochSecond(ZoneOffset.of("+8")))
                                 );
                             });
@@ -155,17 +163,17 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                             );
                     //处理品牌信息
                     Optional.ofNullable(goodsSpu.getBrandId()).filter(StrUtil::isNotEmpty)
-                            .ifPresent(brandId ->{
+                            .ifPresent(brandId -> {
                                 Optional.ofNullable(brandService.getById(brandId))
-                                    .ifPresent(brand -> {
-                                        var esBrand = BeanUtil.toBean(brand, EsBrand.class);
-                                        esGoods.setBrand(esBrand);
-                                        // 提取其关联的前台类目
-                                        frontRelationService.findAllByRelation(Collections.singletonList(brandId), FrontStatic.RELATION_TYPE_BRAND).forEach(frontRelation -> {
-                                            fronts.addAll(this.getEsFronts(frontService.getById(frontRelation.getFrontId())));
-                                            frontRelations.add(BeanUtil.toBean(frontRelation, EsFrontRelation.class));
+                                        .ifPresent(brand -> {
+                                            var esBrand = BeanUtil.toBean(brand, EsBrand.class);
+                                            esGoods.setBrand(esBrand);
+                                            // 提取其关联的前台类目
+                                            frontRelationService.findAllByRelation(Collections.singletonList(brandId), FrontStatic.RELATION_TYPE_BRAND).forEach(frontRelation -> {
+                                                fronts.addAll(this.getEsFronts(frontService.getById(frontRelation.getFrontId())));
+                                                frontRelations.add(BeanUtil.toBean(frontRelation, EsFrontRelation.class));
+                                            });
                                         });
-                                    });
                             });
                     //处理商品图片
                     esGoods.setPcPicture(goodsService.getSpuPicture(esGoods.getId(), CommonStatic.MATERIAL_SHOW_PC));
@@ -173,10 +181,10 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                     //处理库存 update by bencai.lv 20230312 增加空指针的判断
                     Optional.ofNullable(goodsService.findAllSku(esGoods.getId()))
                             .ifPresent(
-                                    thisGoods->
+                                    thisGoods ->
                                             Optional.ofNullable(thisGoods).filter(CollUtil::isNotEmpty)
                                                     .ifPresent(
-                                                            skus -> esGoods.setInventory(skus.stream().mapToInt(sku-> null == sku.getPhysicalInventory() ? 0:sku.getPhysicalInventory()).sum())
+                                                            skus -> esGoods.setInventory(skus.stream().mapToInt(sku -> null == sku.getPhysicalInventory() ? 0 : sku.getPhysicalInventory()).sum())
                                                     )
                             );
                     //处理销售属性信息
@@ -203,7 +211,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                             });
                     //处理前台分类信息
                     esGoods.setFronts(
-                                fronts.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(EsFront::getId))), ArrayList::new)));
+                            fronts.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(EsFront::getId))), ArrayList::new)));
                     //处理前台分类关联关系信息
                     esGoods.setFrontRelations(frontRelations.stream()
                             .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(EsFrontRelation::getId))), ArrayList::new)));
@@ -250,10 +258,11 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                     request.id(id);
                     request.source(JSONUtil.toJsonStr(esGoods), XContentType.JSON);
                     try {
-                        /* highLevelUtil.getClient() */client.index(request, RequestOptions.DEFAULT);
+                        /* highLevelUtil.getClient() */
+                        client.index(request, RequestOptions.DEFAULT);
                     } catch (IOException e) {
                         log.error(JSONUtil.toJsonStr(esGoods));
-                        log.error(e.getMessage(),e);
+                        log.error(e.getMessage(), e);
                         throw new BusinessException(ErrorMessageEnum.ES_INSERT_FAILED);
                     }
                 });
@@ -262,16 +271,18 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
 
     /**
      * es删除商品
+     *
      * @param id 商品Id
      * @return
      */
     @Override
     public Boolean deleteGoods(String id) {
-        log.info("从es删除spu,deleteGoods,id:{}",id);
+        log.info("从es删除spu,deleteGoods,id:{}", id);
         if (StrUtil.isNotEmpty(id)) {
             var request = new DeleteRequest(TuxianIndexEnum.INDEX_GOODS.getIndexName(), id);
             try {
-                /* highLevelUtil.getClient() */client.delete(request, RequestOptions.DEFAULT);
+                /* highLevelUtil.getClient() */
+                client.delete(request, RequestOptions.DEFAULT);
             } catch (IOException e) {
                 throw new BusinessException(ErrorMessageEnum.ES_DELETE_FAILED);
             }
@@ -320,14 +331,15 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
 
     /**
      * 根据发布时间和最大条目数查询es中的商品数据
+     *
      * @param page       当前页数
      * @param pageSize   每页大小
      * @param sortMethod 排序方法：asc为正序、desc为倒序
-     * @param isPre       是否为预售
+     * @param isPre      是否为预售
      * @return
      */
     @Override
-    public List<EsGoods> findAllGoodsWithPublishTime(Integer page,Integer pageSize, String sortMethod, Boolean isPre) {
+    public List<EsGoods> findAllGoodsWithPublishTime(Integer page, Integer pageSize, String sortMethod, Boolean isPre) {
         var searchRequest = new SearchRequest(TuxianIndexEnum.INDEX_GOODS.getIndexName());
         var sourceBuilder = new SearchSourceBuilder();
         var rqb = QueryBuilders.rangeQuery(FIELD_PUBLISH_TIME);
@@ -350,7 +362,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
                                     .collect(Collectors.toList()))
                     );
         } catch (IOException e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
             throw new BusinessException(ErrorMessageEnum.ES_SEARCHING_FAIL);
         }
         return results;
@@ -358,6 +370,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
 
     /**
      * 根据条件获取商品列表
+     *
      * @param queryVo
      * @return
      */
@@ -368,7 +381,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
         var sourceBuilder = new SearchSourceBuilder();
         var bqb = QueryBuilders.boolQuery();
         bqb.must(QueryBuilders.rangeQuery(FIELD_PUBLISH_TIME)
-                    .lte(System.currentTimeMillis() / 1000));
+                .lte(System.currentTimeMillis() / 1000));
         if (CollUtil.isNotEmpty(queryVo.getIds())) {
             bqb.must(QueryBuilders.termsQuery("id", queryVo.getIds()));
         }
@@ -452,14 +465,14 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
     }
 
     /**
-     * @description: 按照分页从es查询商品
      * @param {SearchQueryVo} queryVo
      * @return {*}
+     * @description: 按照分页从es查询商品
      * @author: lbc
      */
     @Override
     public Page<EsGoods> searchByPage(SearchQueryVo queryVo) {
-        log.info("从es中查询数据searchByPage：queryVo"+JSONObject.toJSONString(queryVo));
+        log.info("从es中查询数据searchByPage：queryVo" + JSONObject.toJSONString(queryVo));
 
         var response = getSearchResponse(queryVo, false);
         return getPageData(response, queryVo.getPage(), queryVo.getPageSize());
@@ -472,12 +485,14 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
             var suc = /* highLevelUtil.getClient() */client.exists(request, RequestOptions.DEFAULT);
             if (suc) {
                 var updateRequest = new UpdateRequest(TuxianIndexEnum.INDEX_GOODS.getIndexName(), spuId).doc("orderNum", num);
-                /* highLevelUtil.getClient() */client.update(updateRequest, RequestOptions.DEFAULT);
+                /* highLevelUtil.getClient() */
+                client.update(updateRequest, RequestOptions.DEFAULT);
             }
         } catch (IOException ioException) {
             log.info("解析ES返回的结果出错了");
         }
     }
+
     /**
      * 获取推荐商品
      */
@@ -488,7 +503,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
         searchQueryVo.setIds(spuIds);
         searchQueryVo.setPage(queryVo.getPage());
         searchQueryVo.setPageSize(queryVo.getPageSize());
-        if(null != queryVo.getLimit()){
+        if (null != queryVo.getLimit()) {
             searchQueryVo.setPageSize(queryVo.getLimit());
             queryVo.setPageSize(queryVo.getLimit());
         }
@@ -507,6 +522,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
     }
 
 
+
     /**
      * 获取es前台分类数据集合
      *
@@ -521,8 +537,8 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
             results.add(BeanUtil.toBean(parent, EsFront.class));
             Optional.ofNullable(parent.getPid())
                     .filter(StrUtil::isNotEmpty).flatMap(ppid ->
-                    Optional.ofNullable(frontService.getById(ppid))).ifPresent(pparent ->
-                    results.add(BeanUtil.toBean(pparent, EsFront.class)));
+                            Optional.ofNullable(frontService.getById(ppid))).ifPresent(pparent ->
+                            results.add(BeanUtil.toBean(pparent, EsFront.class)));
         });
         return results;
     }
@@ -546,7 +562,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
             Optional.ofNullable(searchHits.getHits()).ifPresent(hits ->
                     Arrays.stream(hits).forEach(hit -> datas.add(JSONUtil.toBean(hit.getSourceAsString(), EsGoods.class))));
             dataPage.setRecords(datas);
-            log.info("从es中查询出数据：datas"+datas.size());
+            log.info("从es中查询出数据：datas" + datas.size());
             ar.set(dataPage);
         });
         return ar.get();
@@ -572,8 +588,8 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
             bqb.must(QueryBuilders.termQuery(FIELD_FRONT_ID, queryVo.getCategoryId()));
         }
         //前台分类frontIds
-        if(CollUtil.isNotEmpty(queryVo.getFrontIds())){
-            bqb.must(QueryBuilders.termsQuery(FIELD_FRONT_ID,queryVo.getFrontIds()));
+        if (CollUtil.isNotEmpty(queryVo.getFrontIds())) {
+            bqb.must(QueryBuilders.termsQuery(FIELD_FRONT_ID, queryVo.getFrontIds()));
         }
         // 品牌id
         if (StrUtil.isNotEmpty(queryVo.getBrandId())) {
@@ -621,7 +637,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
         Stream.of(needCondition).filter(Objects::nonNull).filter(Boolean.TRUE::equals).forEach(need -> {
             //聚合信息
             if (StrUtil.isNotEmpty(queryVo.getCategoryId())) {
-                 sourceBuilder.aggregation(AggregationBuilders.terms("by_category").field(FIELD_FRONT_ID/*+".keyword"*/).size(1000));
+                sourceBuilder.aggregation(AggregationBuilders.terms("by_category").field(FIELD_FRONT_ID/*+".keyword"*/).size(1000));
             }
             sourceBuilder.aggregation(AggregationBuilders.terms("by_brand").field("brand.id"/*+".keyword"*/).size(100));
         });
@@ -630,7 +646,7 @@ public class SearchGoodsServiceImpl implements SearchGoodsService {
         sourceBuilder.size(queryVo.getPageSize());
         // 排序
         if (StrUtil.isNotEmpty(queryVo.getSortField())) {
-             // 增加排序的默认值desc
+            // 增加排序的默认值desc
             if (StringUtils.isBlank(queryVo.getSortMethod())) {
                 queryVo.setSortMethod(SortOrder.DESC.toString());
             }

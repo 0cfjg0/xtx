@@ -106,9 +106,12 @@ public class LoginWxMinController extends BaseController {
                 userMemberService.save(user);
                 userMember = user;
                 // 根据用户信息生成token信息
+
             } else {
                 // 根据用户信息生成token信息
+
                 // 根据openid查询不到，但是当前手机号存在用户信息
+
             }
 
         // 返回当前用户的token信息
