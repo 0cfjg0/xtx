@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.itheima.xiaotuxian.entity.member.UserMemberCart;
 import com.itheima.xiaotuxian.vo.member.BatchDeleteCartVo;
 import com.itheima.xiaotuxian.vo.member.CartSaveVo;
+import com.itheima.xiaotuxian.vo.member.CartSelectedVo;
 import com.itheima.xiaotuxian.vo.member.CartVo;
 
 import java.util.List;
@@ -11,12 +12,15 @@ import java.util.List;
 public interface UserMemberCartService extends IService<UserMemberCart> {
 
     /**
-     * 保存购物车商品信息
+     * 1. 保存购物车商品信息
      *
-     * @param saveVo 商品信息
+     * @param cartSaveVo
      * @return 购物车商品信息
      */
-    public CartVo saveCart(CartSaveVo cartSaveVo);
+    public CartVo saveCart(CartSaveVo cartSaveVo,String userId);
+
+
+
 
     /**
      * 批量删除用户购物车商品
@@ -34,12 +38,12 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
     void deleteUserCart(BatchDeleteCartVo batchDeleteCartVo);
 
     /**
-     * 获取用户购物车列表
+     * 2. 获取用户购物车列表
      *
-     * @param memberId 用户Id
+     //* @param memberId 用户Id
      * @return 购物车列表
      */
-    List<CartVo> getCartList();
+    public List<CartVo> getCarts(String userId);
 
     /**
      * 获取用户购物车数量
@@ -63,5 +67,9 @@ public interface UserMemberCartService extends IService<UserMemberCart> {
      */
     CartVo updateUserCart(CartSaveVo cartSaveVo);
 
-
+    /**
+     * 3. 购物车全选/全不选
+     * @param cartSelectedVo
+     */
+    public void selectAllCarts(CartSelectedVo cartSelectedVo);
 }

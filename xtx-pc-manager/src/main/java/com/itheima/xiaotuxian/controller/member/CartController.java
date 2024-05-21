@@ -12,6 +12,7 @@ import com.itheima.xiaotuxian.vo.R;
 import com.itheima.xiaotuxian.vo.member.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ public class CartController extends BaseController {
         return R.ok(cartList, "78945613");
     }
 
+
+
     /**
      * 获取购物车数量
      */
@@ -42,6 +45,16 @@ public class CartController extends BaseController {
     public R getCartCount() {
         Integer count = cartService.getCartCount();
         return R.ok(count);
+    }
+    /**
+     * 1. 保存购物车商品信息,返回需要的的cartVo
+     */
+    @PostMapping()
+    public R<CartVo>  saveCart(@RequestBody CartSaveVo cartSaveVo){
+        //调用BaseController中,getUserId方法获取token携带的用户ID,实际调用getTokenValue,来获取id
+        String userId = getUserId();
+        CartVo cartVo = cartService.saveCart(cartSaveVo,userId);
+        return R.ok(cartVo, R.SUCCESS);
     }
 
     /**
@@ -53,6 +66,25 @@ public class CartController extends BaseController {
     @PostMapping("/merge")
     public R mergeCartCout(@RequestBody List<CartSaveVo> cartSaveVoList) {
         cartService.mergeCartCout(cartSaveVoList);
+        return R.ok();
+    }
+    /**
+     * 2. 获取用户购物车列表
+     */
+    @GetMapping()
+    public R getCarts(){
+        String userId = getUserId();
+        List<CartVo> list = cartService.getCarts(userId);
+        return R.ok(list,R.SUCCESS);
+    }
+
+    /**
+     * 3. 购物车全选/全不选
+     * @return
+     */
+    @PutMapping("/selected")
+    public R selectAllCarts(@RequestBody CartSelectedVo cartSelectedVo){
+        cartService.selectAllCarts(cartSelectedVo);
         return R.ok();
     }
 
@@ -83,15 +115,5 @@ public class CartController extends BaseController {
         return R.ok();
     }
 
-    /**
-     * 保存
-     *
-     * @param cartSaveVo
-     * @return
-     */
-    @PostMapping()
-    public R<CartVo> saveCart(@RequestBody CartSaveVo cartSaveVo) {
-        CartVo cartVo = cartService.saveCart(cartSaveVo);
-        return R.ok(cartVo, R.SUCCESS);
-    }
+
 }

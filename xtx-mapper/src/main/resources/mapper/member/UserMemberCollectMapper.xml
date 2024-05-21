@@ -37,4 +37,11 @@
         </where>
         ORDER BY collect.create_time DESC
     </select>
+
+    <!--新增购物车信息-->
+<!--    <insert id="saveCart" parameterType="com.itheima.xiaotuxian.entity.member.UserMemberCart">-->
+<!--        insert into-->
+<!--            user_member_cart(create_time,  member_id, sku_id, spu_id, quantity, price)-->
+<!--        VALUES (#{createTime}, #{memberId}, #{skuId}, #{spuId}, #{quantity}, #{price})-->
+<!--    </insert>-->
 </mapper>
