@@ -237,7 +237,11 @@ public class OrderController extends BaseController {
 
 
 
-
+    @DeleteMapping("/{id}")
+    public R deleteOrder(@PathVariable String id){
+        orderService.deleteOrder(id);
+        return R.ok();
+    }
 
 
 

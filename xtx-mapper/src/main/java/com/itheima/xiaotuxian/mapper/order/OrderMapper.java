@@ -12,10 +12,8 @@ import com.itheima.xiaotuxian.vo.member.OrderSkuPropertyVo;
 import com.itheima.xiaotuxian.vo.member.OrderSkuVo;
 import com.itheima.xiaotuxian.vo.order.OrderGoodsVo;
 import io.swagger.models.auth.In;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -116,4 +114,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     //查询商品名字
     @Select("select name from order_order_sku where sku_id = ${id}")
     List<String> getName(String id);
+
+    //删除订单
+    @Delete("delete from order_order where id = ${id}")
+    void deleteOrder(String id);
 }

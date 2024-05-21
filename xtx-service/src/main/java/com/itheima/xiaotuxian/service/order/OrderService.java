@@ -74,4 +74,6 @@ public interface OrderService extends IService<Order> {
     void setOrderComplete(String orderId);
 
     void cancelOrder(String id);
+
+    void deleteOrder(String id);
 }
