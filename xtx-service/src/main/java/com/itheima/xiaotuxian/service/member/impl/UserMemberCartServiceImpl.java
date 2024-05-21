@@ -61,8 +61,8 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
     private GoodsSpuMapper goodsSpuMapper;
 
     //下面是用户id和用户名,之后要改成从令牌获取
-    private String memberId = "1609802334668328961";
-    private String client = "用户778223";
+    private String memberId = "1609504249362780161";
+    private String client = "a123456asd";
 
 
     /**
@@ -238,11 +238,9 @@ public class UserMemberCartServiceImpl extends ServiceImpl<UserMemberCartMapper,
             e.printStackTrace();
         }
         if (userMemberCart != null) {
-            System.out.println("-------------------+7894564123");
             userMemberCart.setQuantity(userMemberCart.getQuantity() + cartSaveVo.getCount());
             updateById(userMemberCart);
         } else {
-            System.out.println("-------------------9963.5554441");
             //2.补全属性
             userMemberCart = new UserMemberCart();
             userMemberCart.setCreateTime(LocalDateTime.now());
